@@ -29,7 +29,10 @@ def _default_compute_score(data_source, solution_str, ground_truth, response_len
         res, metrics = prime_math.compute_score(solution_str, ground_truth)
     elif data_source in ['codecontests', 'apps', 'codeforces', 'taco']:
         from . import prime_code
-        res, metrics = prime_code.compute_score(solution_str, ground_truth, continuous=True)
+        res = prime_code.compute_score(solution_str, ground_truth, continuous=True)
+    elif data_source in ['hiyouga/geometry3k']:
+        from . import geo3k
+        res = geo3k.compute_score(solution_str, ground_truth)
     else:
         from . import math_general
         res, metrics = math_general.compute_score(solution_str, ground_truth, response_length)

@@ -32,6 +32,7 @@ TOOL_USE_VLLM = os.getenv('TOOL_USE_VLLM', 'false').lower() == 'true'
 if package_version <= '0.6.3':
     vllm_mode = 'customized'
     from .vllm_rollout import vLLMRollout
+    from .fire_vllm_rollout import FIREvLLMRollout
 else:
     vllm_mode = 'spmd'
     if TOOL_USE_VLLM:
