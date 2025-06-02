@@ -53,7 +53,10 @@ class DataParallelPPOActor(BasePPOActor):
         self.ulysses_sequence_parallel_size = self.config.ulysses_sequence_parallel_size
         self.use_ulysses_sp = self.ulysses_sequence_parallel_size > 1
 
-        self.compute_entropy_from_logits = torch.compile(verl_F.entropy_from_logits, dynamic=True)
+        self.compute_entropy_from_logits = (
+            torch.compile(verl_F.entropy_from_logits, dynamic=True)
+            if self.config.get('use_torch_compile', True)  #  use torch compile by default
+            else verl_F.entropy_from_logits)
 
     def _forward_micro_batch(self, micro_batch, temperature) -> Tuple[torch.Tensor, torch.Tensor]:
         """
@@ -264,11 +267,11 @@ class DataParallelPPOActor(BasePPOActor):
                     self.actor_optimizer.zero_grad()
 
                 for data in micro_batches:
+                    # Support all hardwares
                     if isinstance(data, DataProto):
-                        data = {**data.batch.cuda(), **data.non_tensor_batch}
+                        data = {**data.batch.to(torch.cuda.current_device()), **data.non_tensor_batch}
                     else:
-                        data = data.cuda()  # actor device is cpu when using offload
-
+                        data = data.to(torch.cuda.current_device())  # actor device is cpu when using offload
                     responses = data['responses']
                     response_length = responses.size(1)
                     attention_mask = data['attention_mask']
