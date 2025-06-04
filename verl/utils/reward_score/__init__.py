@@ -19,12 +19,18 @@ def _default_compute_score(data_source, solution_str, ground_truth, response_len
         from . import gsm8k
         res = gsm8k.compute_score(solution_str, ground_truth)
     elif data_source in ['lighteval/MATH', 'DigitalLearningGmbH/MATH-lighteval']:
-        # from . import math
-        # res = math.compute_score(solution_str, ground_truth)
+        from . import math
+        res = math.compute_score(solution_str, ground_truth)
+        # [Optional] Math-Verify Integration
+        # For enhanced accuracy, consider utilizing Math-Verify (https://github.com/huggingface/Math-Verify).
+        # Note: Math-Verify needs to be manually installed via pip: `pip install math-verify`.
+        # To use it, override the `compute_score` function with the following implementation:
 
-        # Use Math-Verify (https://github.com/huggingface/Math-Verify) for better evaluation accuracy
-        from . import math_verify
-        res = math_verify.compute_score(solution_str, ground_truth)
+        # from . import math_verify
+        # res = math_verify.compute_score(solution_str, ground_truth)
+    elif data_source == 'math_dapo' or data_source.startswith("aime"):
+        from . import math_dapo
+        res = math_dapo.compute_score(solution_str, ground_truth)
     elif data_source in [
             'numina_aops_forum', 'numina_synthetic_math', 'numina_amc_aime', 'numina_synthetic_amc', 'numina_cn_k12',
             'numina_olympiads'
@@ -41,7 +47,11 @@ def _default_compute_score(data_source, solution_str, ground_truth, response_len
         from . import math_general
         res, metrics = math_general.compute_score(solution_str, ground_truth, response_length)
 
-    if isinstance(res, (int, float, bool)):
-        return float(res), metrics
+        # raise NotImplementedError(f"Reward function is not implemented for {data_source=}")
+
+    if isinstance(res, dict):
+        return res
+    elif isinstance(res, (int, float, bool)):
+        return float(res)
     else:
         return float(res[0]), metrics
