@@ -46,7 +46,6 @@ CMD="python -m verl.trainer.main_ppo \
     algorithm.kl_ctrl.kl_coef=0.001 \
     trainer.critic_warmup=0 \
     trainer.logger=['console','wandb'] \
-    trainer.val_generations_to_log_to_wandb=90 \
     trainer.project_name="reasoning" \
     trainer.experiment_name=$RUN_NAME \
     trainer.n_gpus_per_node=$((GPUS)) \

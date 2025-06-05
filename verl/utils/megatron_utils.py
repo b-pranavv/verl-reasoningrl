@@ -25,7 +25,7 @@ import torch
 import torch.nn.functional as F
 from megatron.core import ModelParallelConfig, mpu, tensor_parallel
 from megatron.core.distributed import DistributedDataParallel as DDP
-from megatron.core.distributed import DistributedDataParallelConfig
+# from megatron.core.distributed import DistributedDataParallelConfig
 from megatron.core.enums import ModelType
 from megatron.core.optimizer import ChainedOptimizer, OptimizerConfig
 from megatron.core.transformer import TransformerConfig
@@ -117,20 +117,34 @@ def get_model(
         model = [Float16Module(config, model_module) for model_module in model]
 
     if wrap_with_ddp:
-        ddp_models = []
-        for model_chunk_idx, model_chunk in enumerate(model):
-            ddp_model = DDP(
-                config=tfconfig,
+        
+        ## new verl
+        # ddp_models = []
+        # for model_chunk_idx, model_chunk in enumerate(model):
+        #     ddp_model = DDP(
+        #         config=tfconfig,
+        #         module=model_chunk,
+        #         disable_bucketing=(model_chunk_idx > 0),
+        #         ddp_config=DistributedDataParallelConfig(
+        #             overlap_grad_reduce=False,
+        #             use_distributed_optimizer=use_distributed_optimizer,
+        #             grad_reduce_in_fp32=True,  # [old] accumulate_allreduce_grads_in_fp32=True,
+        #         ),
+        #     )
+        #     ddp_models.append(ddp_model)
+        # model = ddp_models
+        
+        ## reasoning rl
+        model = [
+            DDP(config=config,
                 module=model_chunk,
-                disable_bucketing=(model_chunk_idx > 0),
-                ddp_config=DistributedDataParallelConfig(
-                    overlap_grad_reduce=False,
-                    use_distributed_optimizer=use_distributed_optimizer,
-                    grad_reduce_in_fp32=True,  # [old] accumulate_allreduce_grads_in_fp32=True,
-                ),
-            )
-            ddp_models.append(ddp_model)
-        model = ddp_models
+                data_parallel_group=mpu.get_data_parallel_group(with_context_parallel=True),
+                accumulate_allreduce_grads_in_fp32=True,
+                overlap_grad_reduce=False,
+                use_distributed_optimizer=True,
+                disable_bucketing=(model_chunk_idx > 0)) for (model_chunk_idx, model_chunk) in enumerate(model)
+        ]
+        
         # # Broadcast params from data parallel src rank to other data parallel ranks.
         # # if args.data_parallel_random_init:
         for model_module in model:

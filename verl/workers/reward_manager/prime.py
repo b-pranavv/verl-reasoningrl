@@ -78,11 +78,21 @@ async def parallel_compute_score_async(evaluation_func, completions, references,
         if isinstance(result, Exception) or result is None:
             # Handle failed or timed-out tasks
             scores.append(0.0)
-        elif isinstance(result, (int, float, bool)):
-            scores.append(float(result))
+            metric = {}
         else:
-            scores.append(float(result[0]))
-    return scores
+            result, metric = result[0]
+            if isinstance(result, (int, float, bool)):
+                scores.append(float(result))
+            else:
+                scores.append(float(result[0]))
+        
+        for k in metric.keys():
+            if k in metrics.keys():
+                metrics[k].append(metric[k])
+            else:
+                metrics[k] = []
+                
+    return scores, metrics
 
 def run_reward_scoring(evaluation_func, completions, references, tasks, extra_info=None, num_processes=64):
     loop = asyncio.new_event_loop()
@@ -133,7 +143,7 @@ class PrimeRewardManager:
 
         assert len(sequences_str) == len(ground_truth) == len(data_sources)
         try:
-            scores = run_reward_scoring(
+            scores, metrics = run_reward_scoring(
                 self.compute_score,
                 completions=sequences_str,
                 references=ground_truth,

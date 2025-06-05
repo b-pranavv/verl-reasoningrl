@@ -88,7 +88,7 @@ def default_compute_score(data_source, solution_str, ground_truth, extra_info=No
     if isinstance(res, dict):
         return res
     elif isinstance(res, (int, float, bool)):
-        return float(res)
+        return float(res), metrics
     else:
         return float(res[0]), metrics
 

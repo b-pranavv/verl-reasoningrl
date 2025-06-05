@@ -12,6 +12,7 @@ echo "AMLT_OUTPUT_DIR=$AMLT_OUTPUT_DIR"
 
 # installing verification libraries
 python -m pip install "math-verify[antlr4-9-3]"
+pip install --upgrade torchdata
 
 # Set run variables
 export RUN_N=8
