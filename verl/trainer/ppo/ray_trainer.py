@@ -856,9 +856,10 @@ class RayPPOTrainer:
 
             # unpad
             test_output_gen_batch = unpad_dataproto(test_output_gen_batch_padded, pad_size=pad_size)
+            print("validation generation end")
 
             # Store generated outputs
-            output_ids = test_output_gen_batch.batch['responses']
+            output_ids = test_output_gen_batch.batch["responses"]
             output_texts = [self.tokenizer.decode(ids, skip_special_tokens=False) for ids in output_ids]
             ## reasoning_rl
             output_texts = [text.replace(self.tokenizer.pad_token, '') for text in output_texts]

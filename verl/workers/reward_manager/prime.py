@@ -128,6 +128,7 @@ class PrimeRewardManager:
         """
         # batched scoring
         prompt_ids = data.batch["prompts"]
+        prompt_length = prompt_ids.shape[-1]
 
         response_ids = data.batch["responses"]
         valid_response_length = data.batch['attention_mask'][:, prompt_length:].sum(dim=-1)
@@ -167,9 +168,11 @@ class PrimeRewardManager:
         except asyncio.TimeoutError:
             print("[Timeout] Global reward scoring timed out. Setting all as 0.")
             scores = [0.0 for _ in range(len(sequences_str))]
+            metrics = {}
         except Exception as e:
             print(f"[Error] Unexpected error during scoring. Setting all as 0. {e}")
             scores = [0.0 for _ in range(len(sequences_str))]
+            metrics = {}
         data.batch["acc"] = torch.tensor(scores, dtype=torch.float32, device=prompt_ids.device)
         return scores, metrics
 

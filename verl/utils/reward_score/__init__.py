@@ -32,6 +32,7 @@ def default_compute_score(data_source, solution_str, ground_truth, extra_info=No
     Raises:
         NotImplementedError: If the reward function is not implemented for the given data source.
     """
+    metrics = {}
     if data_source == "openai/gsm8k":
         from . import gsm8k
 
