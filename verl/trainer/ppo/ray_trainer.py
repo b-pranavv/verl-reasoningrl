@@ -782,9 +782,8 @@ class RayPPOTrainer:
         # rng = np.random.RandomState(42)
         # rng.shuffle(samples)
 
-        if generations_to_log > 0 and len(samples) > generations_to_log:
-            # Take first N samples after shuffling
-            samples = samples[:generations_to_log]
+        # Take first N samples after shuffling
+        samples = samples[:generations_to_log]
 
         # Log to each configured logger
         self.validation_generations_logger.log(self.config.trainer.logger, samples, self.global_steps)
@@ -811,16 +810,10 @@ class RayPPOTrainer:
 
             # Store original inputs
             input_ids = test_batch.batch['input_ids']
-            
-            
             ### reasoning_rl ##
             input_texts = [self.tokenizer.decode(ids, skip_special_tokens=False) for ids in input_ids]
             input_texts = [text.replace(self.tokenizer.pad_token, '') for text in input_texts]
-            input_ids = test_batch.batch["input_ids"]
-            # TODO: Can we keep special tokens except for padding tokens?
-            # input_texts = [self.tokenizer.decode(ids, skip_special_tokens=True) for ids in input_ids]
             #########
-            
             sample_inputs.extend(input_texts)
 
             batch_keys_to_pop = ["input_ids", "attention_mask", "position_ids"]
@@ -1332,8 +1325,8 @@ class RayPPOTrainer:
                         
                         ######### reasoning_rl #########
                         # reward_tensor, reward_metrics = self.reward_fn(batch)
-                        # ## latest_verl
-                        # # reward_result = self.reward_fn(batch, return_dict=True)
+                        ## latest_verl
+                        # reward_result = self.reward_fn(batch, return_dict=True)
                         # reward_tensor = reward_result['reward_tensor']
                         # reward_extra_infos_dict = reward_result['reward_extra_info']
                         #########
