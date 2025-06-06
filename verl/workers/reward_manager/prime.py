@@ -158,7 +158,7 @@ class PrimeRewardManager:
             print(f"[Error] Unexpected error during scoring. Setting all as 0. {e}")
             scores = [0.0 for _ in range(len(sequences_str))]
         data.batch["acc"] = torch.tensor(scores, dtype=torch.float32, device=prompt_ids.device)
-        return scores
+        return scores, metrics
 
     def __call__(self, data: DataProto, return_dict: bool = False):
         """We will expand this function gradually based on the available datasets"""
@@ -180,7 +180,7 @@ class PrimeRewardManager:
         sequences_str = self.tokenizer.batch_decode(response_ids, skip_special_tokens=True)
         data_sources = data.non_tensor_batch["data_source"]
 
-        scores = self.verify(data)
+        scores, metrics = self.verify(data)
 
         for i in range(len(data)):
             data_source = data_sources[i]
