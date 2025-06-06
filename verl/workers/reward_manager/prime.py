@@ -130,6 +130,9 @@ class PrimeRewardManager:
         prompt_ids = data.batch["prompts"]
 
         response_ids = data.batch["responses"]
+        valid_response_length = data.batch['attention_mask'][:, prompt_length:].sum(dim=-1)
+        valid_response_length_list = valid_response_length.cpu().tolist()
+        
         ## reasoning_rl
         # decode the response_ids
         sequences_str = self.tokenizer.batch_decode(response_ids, skip_special_tokens=False)
@@ -139,7 +142,17 @@ class PrimeRewardManager:
         # sequences_str = self.tokenizer.batch_decode(response_ids, skip_special_tokens=True)
         ground_truth = [data_item.non_tensor_batch["reward_model"]["ground_truth"] for data_item in data]
         data_sources = data.non_tensor_batch[self.reward_fn_key]
+        
         extra_info = data.non_tensor_batch.get("extra_info", None)
+        # Add response lengths
+        if extra_info is None:
+            # Create one dict per sample
+            extra_info = [{"response_length": l} for l in valid_response_length_list]
+        else:
+            # If extra_info already exists as a list of dicts, update each one
+            for i, l in enumerate(valid_response_length_list):
+                extra_info[i]["response_length"] = l
+
 
         assert len(sequences_str) == len(ground_truth) == len(data_sources)
         try:

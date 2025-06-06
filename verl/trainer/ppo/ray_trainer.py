@@ -872,7 +872,7 @@ class RayPPOTrainer:
             reward_tensor, reward_metrics = self.val_reward_fn(test_batch)
             ## new_verl
             # result = self.val_reward_fn(test_batch, return_dict=True)
-            reward_tensor = result["reward_tensor"]
+            # reward_tensor = result["reward_tensor"]
             
             # Store answers and solutions
             sample_answers.extend(reward_metrics["no_wandb_ans"])
@@ -882,8 +882,8 @@ class RayPPOTrainer:
             sample_scores.extend(scores)
 
             reward_extra_infos_dict["reward"].extend(scores)
-            if "reward_extra_info" in result:
-                for key, lst in result["reward_extra_info"].items():
+            if isinstance(reward_metrics, dict):
+                for key, lst in reward_metrics.items():
                     reward_extra_infos_dict[key].extend(lst)
 
             data_source_lst.append(test_batch.non_tensor_batch.get("data_source", ["unknown"] * reward_tensor.shape[0]))
