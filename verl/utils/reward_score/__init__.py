@@ -16,7 +16,7 @@
 from verl.utils.import_utils import deprecated
 
 
-def default_compute_score(data_source, solution_str, ground_truth, extra_info=None, sandbox_fusion_url=None, concurrent_semaphore=None):
+def default_compute_score(data_source, solution_str, ground_truth, response_length, extra_info=None, sandbox_fusion_url=None, concurrent_semaphore=None):
     """Compute the score for a given solution based on the data source.
 
     Args:
@@ -32,6 +32,7 @@ def default_compute_score(data_source, solution_str, ground_truth, extra_info=No
     Raises:
         NotImplementedError: If the reward function is not implemented for the given data source.
     """
+    metrics = {}
     if data_source == "openai/gsm8k":
         from . import gsm8k
 
@@ -61,7 +62,7 @@ def default_compute_score(data_source, solution_str, ground_truth, extra_info=No
     ]:
         from . import prime_math
 
-        res, metrics = prime_math.compute_score(solution_str, ground_truth)
+        res = prime_math.compute_score(solution_str, ground_truth)
     elif data_source in ["codecontests", "apps", "codeforces", "taco"]:
         # Use the passed sandbox_fusion_url if available
         if sandbox_fusion_url:
@@ -94,11 +95,11 @@ def default_compute_score(data_source, solution_str, ground_truth, extra_info=No
 
 
 @deprecated("verl.utils.reward_score.default_compute_score")
-def _default_compute_score(data_source, solution_str, ground_truth, extra_info=None, sandbox_fusion_url=None, concurrent_semaphore=None):
+def _default_compute_score(data_source, solution_str, ground_truth, response_length, extra_info=None, sandbox_fusion_url=None, concurrent_semaphore=None):
     """
     Legacy function API to be deprecated. Please use `default_compute_score` instead.
     """
-    return default_compute_score(data_source, solution_str, ground_truth, extra_info, sandbox_fusion_url, concurrent_semaphore)
+    return default_compute_score(data_source, solution_str, ground_truth, response_length, extra_info, sandbox_fusion_url, concurrent_semaphore)
 
 
 __all__ = ["default_compute_score"]
