@@ -48,6 +48,7 @@ export ULYSSES_PARALLEL_SIZE=1
 export SAVE_FREQ=5
 export FP8_ADAM=true
 export FP8_KVCACHE=true
+export RAY_DEDUP_LOGS=0
 
 pip install -q vllm==0.8.1
 pip install -q tensordict==0.6.2

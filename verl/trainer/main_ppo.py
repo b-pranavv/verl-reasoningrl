@@ -92,8 +92,6 @@ class TaskRunner:
         # download the checkpoint from hdfs
         local_path = copy_to_local(config.actor_rollout_ref.model.path, use_shm=config.actor_rollout_ref.model.get('use_shm', False))
 
-    
-
         # instantiate tokenizer
         from verl.utils import hf_processor, hf_tokenizer
 
