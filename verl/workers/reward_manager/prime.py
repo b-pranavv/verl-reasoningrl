@@ -80,17 +80,19 @@ async def parallel_compute_score_async(evaluation_func, completions, references,
             scores.append(0.0)
             metric = {}
         else:
-            result, metric = result[0]
-            if isinstance(result, (int, float, bool)):
-                scores.append(float(result))
+            res, metric = result
+            print('res', res, 'metric', metric)
+
+            if isinstance(res, (int, float, bool)):
+                scores.append(float(res))
             else:
-                scores.append(float(result[0]))
+                scores.append(float(res[0]))
         
         for k in metric.keys():
             if k in metrics.keys():
                 metrics[k].append(metric[k])
             else:
-                metrics[k] = []
+                metrics[k] = [metric[k]]
                 
     return scores, metrics
 
