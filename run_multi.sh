@@ -1,5 +1,5 @@
 ibstatus
-
+ray stop
 nvidia-smi topo -m
 
 set -x
