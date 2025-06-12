@@ -816,7 +816,6 @@ class RayPPOTrainer:
             ### reasoning_rl ##
             input_texts = [self.tokenizer.decode(ids, skip_special_tokens=False) for ids in input_ids]
             input_texts = [text.replace(self.tokenizer.pad_token, '') for text in input_texts]
-            input_ids = test_batch.batch["input_ids"]
             # TODO: Can we keep special tokens except for padding tokens?
             # input_texts = [self.tokenizer.decode(ids, skip_special_tokens=True) for ids in input_ids]
             #########
@@ -870,10 +869,14 @@ class RayPPOTrainer:
 
             # evaluate using reward_function
             ## reasoning_rl
+            pprint(f'In _validate in ray_trainer.py')
+            pprint(f'test_batch: {test_batch}')
             reward_tensor, reward_metrics = self.val_reward_fn(test_batch)
             ## new_verl
             # result = self.val_reward_fn(test_batch, return_dict=True)
             # reward_tensor = result["reward_tensor"]
+            pprint(f'reward_tensor: {reward_tensor}')
+            pprint(f'reward_metrics: {reward_metrics}')
             
             # Store answers and solutions
             sample_answers.extend(reward_metrics["no_wandb_ans"])
@@ -1186,6 +1189,7 @@ class RayPPOTrainer:
         # perform validation before training
         # currently, we only support validation using the reward_function.
         if self.val_reward_fn is not None and self.config.trainer.get("val_before_train", True):
+            pprint(f"Initial validation before training")
             val_metrics = self._validate()
             assert val_metrics, f"{val_metrics=}"
             pprint(f"Initial validation metrics: {val_metrics}")
@@ -1342,7 +1346,7 @@ class RayPPOTrainer:
                             reward_tensor, reward_extra_infos_dict = ray.get(future_reward)
                         
                         reward_metrics = {
-                            f"verifier/{k}": np.mean(v) for k, v in reward_metrics.items() if "no_wandb" not in k
+                            f"verifier/{k}": np.mean(v) for k, v in reward_extra_infos_dict.items() if "no_wandb" not in k
                         }
                         metrics.update(reward_metrics)
                         batch.batch["token_level_scores"] = reward_tensor

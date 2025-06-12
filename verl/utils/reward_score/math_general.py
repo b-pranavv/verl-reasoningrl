@@ -217,7 +217,8 @@ def compute_repetition_penalty(text, n_gram_size=5):
 
 def compute_score(solution_str, ground_truth, response_length, max_response_length=MAX_RESPONSE_LENGTH):
     """Reward function that checks if the completion is the same as the ground truth."""
-
+    print('in math_general.py in compute_score')
+    
     split, ground_truth = ground_truth.split("######")
 
     tool_count = min(solution_str.count("<tool>"), solution_str.count("</tool>"))
@@ -238,6 +239,7 @@ def compute_score(solution_str, ground_truth, response_length, max_response_leng
 
     # If the split is test, we can directly compare the completion with the ground truth.
     if split == "test":
+        print('in math_general.py in compute_score in split test')
         # Try to extract \boxed{...} from the completion.
         solution_str = last_boxed_only_string(solution_str)
         if solution_str is not None:
@@ -246,6 +248,7 @@ def compute_score(solution_str, ground_truth, response_length, max_response_leng
             # If the completion does not contain \boxed{...}, return 0.
             return 0., {"no_wandb_ans": solution_str, "no_wandb_sol": ground_truth}
 
+    print('in math_general.py in compute_score OUTSIDE split test')
     # if there are more than one think tags, return -1 to prevent reward hacking of regex
     invalid_think = solution_str.count("<think>") > 1 or solution_str.count("</think>") > 1
     no_think = "<think>" not in solution_str or "</think>" not in solution_str

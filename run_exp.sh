@@ -6,6 +6,7 @@ export RUN_NAME=$AMLT_JOB_NAME
 # login to huggingface and wandb
 huggingface-cli login --token $HF_TOKEN --add-to-git-credential
 wandb login --host $WANDB_HOST $WANDB_TOKEN
+export HYDRA_FULL_ERROR=1
 
 # Set run variables
 CMD="python -m verl.trainer.main_ppo \
