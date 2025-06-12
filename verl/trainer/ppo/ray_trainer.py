@@ -813,6 +813,8 @@ class RayPPOTrainer:
             ### reasoning_rl ##
             input_texts = [self.tokenizer.decode(ids, skip_special_tokens=False) for ids in input_ids]
             input_texts = [text.replace(self.tokenizer.pad_token, '') for text in input_texts]
+            # TODO: Can we keep special tokens except for padding tokens?
+            # input_texts = [self.tokenizer.decode(ids, skip_special_tokens=True) for ids in input_ids]
             #########
             sample_inputs.extend(input_texts)
 
@@ -1335,7 +1337,7 @@ class RayPPOTrainer:
                             reward_tensor, reward_extra_infos_dict = ray.get(future_reward)
                         
                         reward_metrics = {
-                            f"verifier/{k}": np.mean(v) for k, v in reward_metrics.items() if "no_wandb" not in k
+                            f"verifier/{k}": np.mean(v) for k, v in reward_extra_infos_dict.items() if "no_wandb" not in k
                         }
                         metrics.update(reward_metrics)
                         batch.batch["token_level_scores"] = reward_tensor
