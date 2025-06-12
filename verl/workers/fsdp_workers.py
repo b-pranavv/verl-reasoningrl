@@ -818,6 +818,7 @@ class ActorRolloutRefWorker(Worker):
         if self._is_offload_optimizer:
             offload_fsdp_optimizer(self.actor_optimizer)
 
+
 class CriticWorker(Worker):
     def __init__(self, config):
         super().__init__()
@@ -1147,6 +1148,7 @@ class CriticWorker(Worker):
 
         if self._is_offload_optimizer:
             offload_fsdp_optimizer(self.critic_optimizer)
+
 
 # TODO(sgm): we may need to extract it to dp_reward_model.py
 class RewardModelWorker(Worker):

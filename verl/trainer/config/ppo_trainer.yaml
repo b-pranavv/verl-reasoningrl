@@ -80,6 +80,7 @@ actor_rollout_ref:
       offload_policy: False # only for fsdp2, offload param\grad\optimizer during train
       reshard_after_forward: True # only for fsdp2, [True, False, int between 1 and fsdp_size]
       fsdp_size: -1
+      model_dtype: null
   ref:
     strategy: fsdp
     fsdp_config:
@@ -88,6 +89,7 @@ actor_rollout_ref:
       wrap_policy:
         # transformer_layer_cls_to_wrap: None
         min_num_params: 0
+      model_dtype: null
     use_torch_compile: ${actor_rollout_ref.actor.use_torch_compile}
     log_prob_micro_batch_size: null # will be deprecated, use log_prob_micro_batch_size_per_gpu
     log_prob_micro_batch_size_per_gpu: null
@@ -121,7 +123,7 @@ actor_rollout_ref:
     log_prob_use_dynamic_bsz: ${actor_rollout_ref.actor.use_dynamic_bsz}
     log_prob_max_token_len_per_gpu: ${actor_rollout_ref.actor.ppo_max_token_len_per_gpu}
     disable_log_stats: True
-    enable_chunked_prefill: True # could get higher throughput
+    enable_chunked_prefill: True # may get higher throughput when set to True. When activated, Please increase max_num_batched_tokens or decrease max_model_len.
     kv_cache_dtype: auto
     # for hf rollout
     do_sample: True
