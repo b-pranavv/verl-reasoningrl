@@ -57,7 +57,7 @@ def get_custom_reward_fn(config):
     return wrapped_fn
 
 
-def load_reward_manager(config, tokenizer, num_examine, **reward_kwargs):
+def load_reward_manager(config, tokenizer, num_examine,rewardType=None, **reward_kwargs):
     reward_manager_name = config.reward_model.get("reward_manager", "naive")
     if reward_manager_name == "naive":
         from verl.workers.reward_manager import NaiveRewardManager
@@ -75,6 +75,9 @@ def load_reward_manager(config, tokenizer, num_examine, **reward_kwargs):
         from verl.workers.reward_manager import DAPORewardManager
 
         reward_manager_cls = DAPORewardManager
+    elif reward_manager_name == 'python':
+        from verl.workers.reward_manager import PythonRewardManager
+        reward_manager_cls = PythonRewardManager
     else:
         raise NotImplementedError
 
@@ -95,12 +98,13 @@ def load_reward_manager(config, tokenizer, num_examine, **reward_kwargs):
         tokenizer=tokenizer,
         num_examine=num_examine,
         compute_score=final_compute_score,
+        rewardType=rewardType,
         reward_fn_key=config.data.reward_fn_key,
         **reward_kwargs,
     )
 
 
-def compute_reward(data: DataProto, reward_fn):
+def compute_reward(data: DataProto, reward_fn, save_path=None):
     """
     Compute reward for a batch of data.
     Args:
@@ -110,7 +114,7 @@ def compute_reward(data: DataProto, reward_fn):
         Tuple of reward tensor and extra info dictionary.
     """
     try:
-        reward_result = reward_fn(data, return_dict=True)
+        reward_result = reward_fn(data, return_dict=True, curr_save_path=save_path)
         reward_tensor = reward_result["reward_tensor"]
         reward_extra_infos_dict = reward_result["reward_extra_info"]
     except Exception as e:

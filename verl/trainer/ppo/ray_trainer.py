@@ -863,7 +863,7 @@ class RayPPOTrainer:
 
             # evaluate using reward_function
             ## reasoning_rl
-            reward_tensor, reward_metrics = self.val_reward_fn(test_batch)
+            reward_tensor, reward_metrics = self.val_reward_fn(test_batch, return_dict=False, curr_save_path=os.path.join(self.config.trainer.save_rollout_path, f'val_{self.global_steps}.jsonl'))
             ## new_verl
             # result = self.val_reward_fn(test_batch, return_dict=True)
             # reward_tensor = result["reward_tensor"]
@@ -1265,7 +1265,7 @@ class RayPPOTrainer:
                         if self.config.reward_model.launch_reward_fn_async:
                             future_reward = compute_reward_async.remote(batch, self.config, self.tokenizer)
                         else:
-                            reward_tensor, reward_extra_infos_dict = compute_reward(batch, self.reward_fn)
+                            reward_tensor, reward_extra_infos_dict = compute_reward(batch, self.reward_fn, save_path=os.path.join(self.config.trainer.save_rollout_path, f'train_{self.global_steps}.jsonl'))
 
                     # recompute old_log_probs
                     with _timer("old_log_prob", timing_raw):

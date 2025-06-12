@@ -13,6 +13,7 @@ data:
   return_raw_chat: False
   return_full_prompt: False
   shuffle: True
+  use_python: True
   filter_overlong_prompts: False # for large-scale dataset, filtering overlong prompts could be timeconsuming. You cat set the filter_overlong_prompts_workers to use multiprocessing to speed up.
   filter_overlong_prompts_workers: 1
   truncation: error
@@ -127,6 +128,7 @@ actor_rollout_ref:
     kv_cache_dtype: auto
     # for hf rollout
     do_sample: True
+    max_turns: 20
     # number of responses (i.e. num sample times)
     n: 1 # > 1 for grpo
     engine_kwargs: # inference engine parameters
@@ -267,6 +269,7 @@ trainer:
   default_hdfs_dir: null
   del_local_ckpt_after_load: False
   default_local_dir: checkpoints/${trainer.project_name}/${trainer.experiment_name}
+  save_rollout_path: checkpoints/${trainer.project_name}/${trainer.experiment_name}/rollout
   max_actor_ckpt_to_keep: null
   max_critic_ckpt_to_keep: null
   # The timeout for ray worker group to wait for the register center to be ready

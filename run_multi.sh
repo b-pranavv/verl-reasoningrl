@@ -4,6 +4,18 @@ nvidia-smi topo -m
 
 set -x
 
+export AZUREML_COMPUTE_USE_COMMON_RUNTIME=true
+export VLLM_ATTENTION_BACKEND=XFORMERS
+export TORCH_NCCL_AVOID_RECORD_STREAMS=1
+export NODES=1
+export GPUS=8
+# HF_TOKEN: $HF_TOKEN
+export WANDB_NAME='hyper_config'
+export WANDB_PROJECT='reasoning'
+export WANDB_TOKEN='c8f694b1460eaf8f06beec994e5aa1bb56183688'
+export EXPERIMENT_NAME='phi_sandbox'
+export WANDB_HOST='https://api.wandb.ai'
+
 echo "Running on $HOSTNAME"
 echo "NODE_RANK=$NODE_RANK"
 echo "MASTER_ADDR=$MASTER_ADDR"
@@ -32,7 +44,7 @@ export MAX_RESPONSE_LENGTH=32768
 # export BASE_MODEL="models/phi-4-o3-sft-32"
 # export BASE_MODEL="models/phi-4-o3-sft-4_1_25"
 # export BASE_MODEL="models/phi-4-o3-sft-4_1_25_long"
-export BASE_MODEL="models/phi-4-o3-sft-04_12_25_32k"
+export BASE_MODEL="phi-4-o3-sft-04_12_25_32k"
 # export BASE_MODEL="models/phi-4-o3-sft-04_13_25_32k"
 # export BASE_MODEL="phi-4-o3-sft-4_1_25_128k"
 export PPO_MAX_TOKEN_LENGTH=32768
@@ -46,6 +58,7 @@ export TENSOR_PARALLEL_SIZE=2
 export ULYSSES_PARALLEL_SIZE=1
 # export ULYSSES_PARALLEL_SIZE=2
 export SAVE_FREQ=5
+export TEST_FREQ=10
 export FP8_ADAM=true
 export FP8_KVCACHE=true
 export RAY_DEDUP_LOGS=0
@@ -81,5 +94,5 @@ fi
 ray status
 
 # Run the script
-chmod +x ./run_exp.sh
-bash ./run_exp.sh
+chmod +x ./run_python.sh
+bash ./run_python.sh
