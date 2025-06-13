@@ -73,6 +73,7 @@ def run_ppo(config) -> None:
         )
 
     runner = TaskRunner.remote()
+    print(f'in run_ppo in main_ppo.py config: {config}')
     ray.get(runner.run.remote(config))
 
 
@@ -96,6 +97,7 @@ class TaskRunner:
         from verl.utils import hf_processor, hf_tokenizer
 
         trust_remote_code = config.data.get("trust_remote_code", False)
+        print('trust_remote_code', trust_remote_code)
         tokenizer = hf_tokenizer(local_path, trust_remote_code=trust_remote_code)
         processor = hf_processor(local_path, use_fast=True)  # used for multimodal LLM, could be none
 
