@@ -72,7 +72,6 @@ async def parallel_compute_score_async(evaluation_func, completions, references,
                     pass
             print(f"[Shutdown] {terminated_count} subprocess(es) terminated.")
 
-    print('in prime.py parallel_compute_score_async building metrics')
     metrics = {}
     # Process results
     for result, completion, reference, task in zip(results, completions, references, tasks):
@@ -81,7 +80,6 @@ async def parallel_compute_score_async(evaluation_func, completions, references,
             scores.append(0.0)
             metric = {}
         else:
-            print('result: ', result)
             res, metric = result
             if isinstance(res, (int, float, bool)):
                 scores.append(float(res))
@@ -128,7 +126,6 @@ class PrimeRewardManager:
         """
         verify the batch and save as ``acc`` tensor
         """
-        print('in prime.py at beginning of verify')
         # batched scoring
         prompt_ids = data.batch["prompts"]
         prompt_length = prompt_ids.shape[-1]
@@ -156,49 +153,31 @@ class PrimeRewardManager:
             # If extra_info already exists as a list of dicts, update each one
             for i, l in enumerate(valid_response_length_list):
                 extra_info[i]["response_length"] = l
-
-        print('In prime.py before run_reward_scoring')
-        scores, metrics = run_reward_scoring(
-            self.compute_score,
-            completions=sequences_str,
-            references=ground_truth,
-            tasks=data_sources,
-            extra_info=extra_info,
-            num_processes=64,
-        )
-        print('In prime.py after run_reward_scoring')
-        print(scores)
-        print(metrics)
-            
-        # assert len(sequences_str) == len(ground_truth) == len(data_sources)
-        # try:
-        #     print('In prime.py before run_reward_scoring')
-        #     scores, metrics = run_reward_scoring(
-        #         self.compute_score,
-        #         completions=sequences_str,
-        #         references=ground_truth,
-        #         tasks=data_sources,
-        #         extra_info=extra_info,
-        #         num_processes=64,
-        #     )
-        #     print('In prime.py after run_reward_scoring')
-        #     print(scores)
-        #     print(metrics)
-        # except asyncio.TimeoutError:
-        #     print("[Timeout] Global reward scoring timed out. Setting all as 0.")
-        #     scores = [0.0 for _ in range(len(sequences_str))]
-        #     metrics = {}
-        # except Exception as e:
-        #     print(f"[Error] Unexpected error during scoring. Setting all as 0. {e}")
-        #     scores = [0.0 for _ in range(len(sequences_str))]
-        #     metrics = {}
+    
+        assert len(sequences_str) == len(ground_truth) == len(data_sources)
+        try:
+            scores, metrics = run_reward_scoring(
+                self.compute_score,
+                completions=sequences_str,
+                references=ground_truth,
+                tasks=data_sources,
+                extra_info=extra_info,
+                num_processes=64,
+            )
+        except asyncio.TimeoutError:
+            print("[Timeout] Global reward scoring timed out. Setting all as 0.")
+            scores = [0.0 for _ in range(len(sequences_str))]
+            metrics = {}
+        except Exception as e:
+            print(f"[Error] Unexpected error during scoring. Setting all as 0. {e}")
+            scores = [0.0 for _ in range(len(sequences_str))]
+            metrics = {}
         data.batch["acc"] = torch.tensor(scores, dtype=torch.float32, device=prompt_ids.device)
         return scores, metrics
 
     def __call__(self, data: DataProto, return_dict: bool = False):
         """We will expand this function gradually based on the available datasets"""
 
-        print('in prime.py at beginning of _call_')
         # If there is rm score, we directly return rm score. Otherwise, we compute via rm_score_fn
         if "rm_scores" in data.batch.keys():
             return data.batch["rm_scores"]

@@ -870,14 +870,10 @@ class RayPPOTrainer:
 
             # evaluate using reward_function
             ## reasoning_rl
-            pprint(f'In _validate in ray_trainer.py')
-            pprint(f'test_batch: {test_batch}')
             reward_tensor, reward_metrics = self.val_reward_fn(test_batch)
             ## new_verl
             # result = self.val_reward_fn(test_batch, return_dict=True)
             # reward_tensor = result["reward_tensor"]
-            pprint(f'reward_tensor: {reward_tensor}')
-            pprint(f'reward_metrics: {reward_metrics}')
             
             # Store answers and solutions
             sample_answers.extend(reward_metrics["no_wandb_ans"])
@@ -1190,7 +1186,6 @@ class RayPPOTrainer:
         # perform validation before training
         # currently, we only support validation using the reward_function.
         if self.val_reward_fn is not None and self.config.trainer.get("val_before_train", True):
-            pprint(f"Initial validation before training")
             val_metrics = self._validate()
             assert val_metrics, f"{val_metrics=}"
             pprint(f"Initial validation metrics: {val_metrics}")
