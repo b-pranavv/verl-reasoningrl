@@ -16,6 +16,7 @@ CMD="python -m verl.trainer.main_ppo \
     data.train_batch_size=$((TRAIN_BATCH_SIZE)) \
     data.filter_overlong_prompts=True \
     data.filter_overlong_prompts_workers=8 \
+    data.max_prompt_length=1024 \
     data.max_response_length=$((MAX_RESPONSE_LENGTH-1024)) \
     reward_model.reward_manager=prime \
     actor_rollout_ref.model.path=/mnt/models/$BASE_MODEL \
