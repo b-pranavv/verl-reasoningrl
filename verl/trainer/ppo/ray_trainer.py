@@ -889,7 +889,8 @@ class RayPPOTrainer:
 
             data_source_lst.append(test_batch.non_tensor_batch.get("data_source", ["unknown"] * reward_tensor.shape[0]))
 
-        self._maybe_log_val_generations(inputs=sample_inputs, outputs=sample_outputs, scores=sample_scores)
+        #### new verl logging ####
+        # self._maybe_log_val_generations(inputs=sample_inputs, outputs=sample_outputs, scores=sample_scores)
 
         # dump generations
         val_data_dir = self.config.trainer.get("validation_data_dir", None)
@@ -907,45 +908,47 @@ class RayPPOTrainer:
 
         data_sources = np.concatenate(data_source_lst, axis=0)
 
-        ########## reasoning_rl
-        # inputs_to_log, outputs_to_log, scores_to_log = [], [], []
-        # # evaluate test_score based on data source
-        # data_source_reward = {}
-        # data_source_answer = {}
-        # data_source_extracted = {}
-        # for i in range(reward_tensor.shape[0]):
-        #     data_source = data_sources[i]
-        #     question = sample_inputs[i]
-        #     if data_source not in data_source_reward:
-        #         data_source_reward[data_source] = {}
-        #         data_source_answer[data_source] = {}
-        #         data_source_extracted[data_source] = {}
-        #     if question not in data_source_reward[data_source]:
-        #         data_source_reward[data_source][question] = []
-        #         data_source_answer[data_source][question] = []
-        #         data_source_extracted[data_source][question] = []
+        #### more detailed logging ####
+        inputs_to_log, outputs_to_log, scores_to_log = [], [], []
+        # evaluate test_score based on data source
+        data_source_reward = {}
+        data_source_answer = {}
+        data_source_extracted = {}
+        for i in range(reward_tensor.shape[0]):
+            data_source = data_sources[i]
+            question = sample_inputs[i]
+            if data_source not in data_source_reward:
+                data_source_reward[data_source] = {}
+                data_source_answer[data_source] = {}
+                data_source_extracted[data_source] = {}
+            if question not in data_source_reward[data_source]:
+                data_source_reward[data_source][question] = []
+                data_source_answer[data_source][question] = []
+                data_source_extracted[data_source][question] = []
 
-        #     data_source_reward[data_source][question].append(reward_tensor[i].item())
-        #     data_source_answer[data_source][question].append(sample_outputs[i])
-        #     # data_source_extracted[data_source][question].append(sample_answers[i])
+            data_source_reward[data_source][question].append(reward_tensor[i].item())
+            data_source_answer[data_source][question].append(sample_outputs[i])
+            # data_source_extracted[data_source][question].append(sample_answers[i])
 
-        # for data_source, question_to_rewards in data_source_reward.items():
-        #     # print(f'Validation data source: {data_source}')
-        #     for question, rewards in question_to_rewards.items():
-        #         # print(f'Question: {question}, rewards: {rewards}')
-        #         inputs_to_log.append(question)
-        #         # sampled_answer = np.random.choice(data_source_answer[data_source][question])
-        #         sampled_index = np.random.randint(len(data_source_answer[data_source][question]))
-        #         sampled_answer = data_source_answer[data_source][question][sampled_index]
-        #         sampled_score = rewards[sampled_index]
-        #         outputs_to_log.append(sampled_answer)
+        for data_source, question_to_rewards in data_source_reward.items():
+            # print(f'Validation data source: {data_source}')
+            for question, rewards in question_to_rewards.items():
+                # print(f'Question: {question}, rewards: {rewards}')
+                inputs_to_log.append(question)
+                # sampled_answer = np.random.choice(data_source_answer[data_source][question])
+                sampled_index = np.random.randint(len(data_source_answer[data_source][question]))
+                sampled_answer = data_source_answer[data_source][question][sampled_index]
+                sampled_score = rewards[sampled_index]
+                outputs_to_log.append(sampled_answer)
 
-        #         # Compute the majority vote for the extracted answers, ignore None
-        #         majority_score = 0.
-        #         scores_to_log.append("{}, avg{}, maj{}, max{}, n{}".format(sampled_score, np.mean(rewards), majority_score, np.max(rewards), len(rewards)))
+                # Compute the majority vote for the extracted answers, ignore None
+                majority_score = 0.
+                scores_to_log.append("{}, avg{}, maj{}, max{}, n{}".format(sampled_score, np.mean(rewards), majority_score, np.max(rewards), len(rewards)))
 
-        # self._maybe_log_val_generations_to_wandb(inputs=inputs_to_log, outputs=outputs_to_log, scores=scores_to_log)
-
+        self._maybe_log_val_generations(inputs=inputs_to_log, outputs=outputs_to_log, scores=scores_to_log)
+        ########
+        
+        ############
         # metric_dict = {}
         # for data_source, question_to_rewards in data_source_reward.items():
             
