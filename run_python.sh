@@ -12,8 +12,8 @@ wandb login --host $WANDB_HOST $WANDB_TOKEN
 
 CMD="python -m verl.trainer.main_ppo \
     algorithm.adv_estimator=grpo \
-    data.train_files=../scripts/data/numina_dataset/train.parquet \
-    data.val_files=../scripts/data/eval_dataset/AMC.parquet \
+    data.train_files=scripts/data/numina_dataset/train.parquet \
+    data.val_files=scripts/data/eval_dataset/AMC.parquet \
     data.train_batch_size=$((TRAIN_BATCH_SIZE)) \
     data.val_batch_size=$((2*NODES*8)) \
     data.max_prompt_length=3000 \
@@ -56,7 +56,7 @@ CMD="python -m verl.trainer.main_ppo \
     trainer.nnodes=$((NODES)) \
     trainer.save_freq=$((SAVE_FREQ)) \
     trainer.test_freq=$((TEST_FREQ)) \
-    trainer.val_before_train=True \
+    trainer.val_before_train=False \
     trainer.default_local_dir=$AZUREML_CR_EXECUTION_WORKING_DIR_PATH/../../cap/data-capability/wd/INPUT_inputs/PHI_training/assets/verl_checkpoints/$EXPERIMENT_NAME/checkpoints \
     trainer.save_rollout_path=$AZUREML_CR_EXECUTION_WORKING_DIR_PATH/../../cap/data-capability/wd/INPUT_inputs/PHI_training/assets/verl_checkpoints/$EXPERIMENT_NAME/rollouts \
     trainer.total_epochs=1"
