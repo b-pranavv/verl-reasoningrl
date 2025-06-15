@@ -182,6 +182,7 @@ class AzureDynamicSessionsClient:
                     break
 
         # If all retries failed, return error result
+        raise Exception(f"Max retries exceeded for index {index}: {last_error}")s
         return {
             'index': index,
             'code': code,

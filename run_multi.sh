@@ -13,7 +13,7 @@ export GPUS=8
 export WANDB_NAME='hyper_config'
 export WANDB_PROJECT='reasoning'
 export WANDB_TOKEN='c8f694b1460eaf8f06beec994e5aa1bb56183688'
-export EXPERIMENT_NAME='phi_sandbox'
+export EXPERIMENT_NAME='phi_sandbox_v1'
 export WANDB_HOST='https://api.wandb.ai'
 
 echo "Running on $HOSTNAME"
@@ -51,7 +51,7 @@ export PPO_MAX_TOKEN_LENGTH=32768
 # export PPO_MAX_TOKEN_LENGTH=36864
 # export PPO_MAX_TOKEN_LENGTH=40960
 # export PPO_MAX_TOKEN_LENGTH=65536
-export PPO_BATCH_SIZE=$((NODES*8*2)) # This is batchsize of ppo
+export PPO_BATCH_SIZE=$((NODES*8*1)) # This is batchsize of ppo
 export TRAIN_BATCH_SIZE=$((PPO_BATCH_SIZE)) # This is batchsize of the data loader
 export LR=1e-7
 export TENSOR_PARALLEL_SIZE=2
