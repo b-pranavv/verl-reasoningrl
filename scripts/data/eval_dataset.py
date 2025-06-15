@@ -130,7 +130,6 @@ if __name__ == '__main__':
 ... (repeat reasoning / tool call / tool result as needed) ...
 </think>
 <answer> final solution for the user (no tool use here) </answer>
-<|im_end|>
 
 **Structure Rules:**
 - All reasoning goes between <think> and </think> (thinking block). 

@@ -127,6 +127,7 @@ class PythonRewardManager():
         if return_dict:
             return {
                 "reward_tensor": reward_tensor,
-            }, {}
+                "reward_extra_info": {}
+            }
         else:
             return reward_tensor, {}

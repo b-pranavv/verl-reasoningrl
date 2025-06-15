@@ -249,6 +249,7 @@ def compute_score_math(solution_str, ground_truth, method='strict', format_score
 
     else:
         ### raise error
+        print("Solution_str: ", solution_str)
         raise ValueError("solution_str is not in the correct format")
 
 

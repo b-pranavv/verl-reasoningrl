@@ -869,7 +869,9 @@ class RayPPOTrainer:
             # reward_tensor = result["reward_tensor"]
             
             # Store answers and solutions
-            sample_answers.extend(reward_metrics["no_wandb_ans"])
+            if 'no_wandb_ans' in reward_metrics:
+                sample_answers.extend(reward_metrics["no_wandb_ans"])
+            # sample_answers.extend(reward_metrics["no_wandb_ans"])
 
             # Store scores
             scores = reward_tensor.sum(-1).cpu().tolist()
@@ -1335,7 +1337,7 @@ class RayPPOTrainer:
                             reward_tensor, reward_extra_infos_dict = ray.get(future_reward)
                         
                         reward_metrics = {
-                            f"verifier/{k}": np.mean(v) for k, v in reward_metrics.items() if "no_wandb" not in k
+                            f"verifier/{k}": np.mean(v) for k, v in reward_extra_infos_dict.items() if "no_wandb" not in k
                         }
                         metrics.update(reward_metrics)
                         batch.batch["token_level_scores"] = reward_tensor

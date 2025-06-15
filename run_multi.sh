@@ -66,6 +66,7 @@ export RAY_DEDUP_LOGS=0
 pip install -q vllm==0.8.1
 pip install -q tensordict==0.6.2
 pip install -q transformers==4.47.1
+pip install -q fastapi langchain azure-identity langchain-openai python-dotenv langchainhub langchain-azure-dynamic-sessions
 
 # older params
 export WANDB_API_KEY=$WANDB_TOKEN

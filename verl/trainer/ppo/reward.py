@@ -119,7 +119,7 @@ def compute_reward(data: DataProto, reward_fn, save_path=None):
         reward_extra_infos_dict = reward_result["reward_extra_info"]
     except Exception as e:
         print(f"Error in reward_fn: {e}")
-        reward_tensor = reward_fn(data)
+        reward_tensor = reward_fn(data, return_dict=False, curr_save_path=save_path)
         reward_extra_infos_dict = {}
 
     return reward_tensor, reward_extra_infos_dict
