@@ -123,3 +123,5 @@ ENV/
 logs
 log
 outputs
+
+*.whl
