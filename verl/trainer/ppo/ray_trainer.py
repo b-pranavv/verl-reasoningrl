@@ -695,6 +695,11 @@ class RayPPOTrainer:
 
             collate_fn = default_collate_fn
 
+        
+        print("Train dataset size:", len(self.train_dataset))
+        print("Batch size:", self.config.data.get("gen_batch_size", self.config.data.train_batch_size))
+
+
         self.train_dataloader = StatefulDataLoader(
             dataset=self.train_dataset,
             batch_size=self.config.data.get("gen_batch_size", self.config.data.train_batch_size),
@@ -813,6 +818,8 @@ class RayPPOTrainer:
             ### reasoning_rl ##
             input_texts = [self.tokenizer.decode(ids, skip_special_tokens=False) for ids in input_ids]
             input_texts = [text.replace(self.tokenizer.pad_token, '') for text in input_texts]
+            # TODO: Can we keep special tokens except for padding tokens?
+            # input_texts = [self.tokenizer.decode(ids, skip_special_tokens=True) for ids in input_ids]
             #########
             sample_inputs.extend(input_texts)
 
@@ -884,7 +891,8 @@ class RayPPOTrainer:
 
             data_source_lst.append(test_batch.non_tensor_batch.get("data_source", ["unknown"] * reward_tensor.shape[0]))
 
-        self._maybe_log_val_generations(inputs=sample_inputs, outputs=sample_outputs, scores=sample_scores)
+        #### new verl logging ####
+        # self._maybe_log_val_generations(inputs=sample_inputs, outputs=sample_outputs, scores=sample_scores)
 
         # dump generations
         val_data_dir = self.config.trainer.get("validation_data_dir", None)
@@ -902,7 +910,7 @@ class RayPPOTrainer:
 
         data_sources = np.concatenate(data_source_lst, axis=0)
 
-        ########## reasoning_rl
+        # #### more detailed logging ####
         # inputs_to_log, outputs_to_log, scores_to_log = [], [], []
         # # evaluate test_score based on data source
         # data_source_reward = {}
@@ -939,8 +947,10 @@ class RayPPOTrainer:
         #         majority_score = 0.
         #         scores_to_log.append("{}, avg{}, maj{}, max{}, n{}".format(sampled_score, np.mean(rewards), majority_score, np.max(rewards), len(rewards)))
 
-        # self._maybe_log_val_generations_to_wandb(inputs=inputs_to_log, outputs=outputs_to_log, scores=scores_to_log)
-
+        # self._maybe_log_val_generations(inputs=inputs_to_log, outputs=outputs_to_log, scores=scores_to_log)
+        ########
+        
+        ############
         # metric_dict = {}
         # for data_source, question_to_rewards in data_source_reward.items():
             

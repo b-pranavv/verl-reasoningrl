@@ -378,6 +378,11 @@ def process_validation_metrics(data_sources: list[str], sample_inputs: list[str]
                 if isinstance(var_vals[0], str):
                     continue
 
+                # Filter out None values
+                var_vals = [v for v in var_vals if v is not None]
+                if len(var_vals) == 0:
+                    continue  # Skip if nothing to compute
+    
                 metric = {}
                 n_resps = len(var_vals)
                 metric[f"mean@{n_resps}"] = np.mean(var_vals)

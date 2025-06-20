@@ -81,8 +81,6 @@ async def parallel_compute_score_async(evaluation_func, completions, references,
             metric = {}
         else:
             res, metric = result
-            print('res', res, 'metric', metric)
-
             if isinstance(res, (int, float, bool)):
                 scores.append(float(res))
             else:
@@ -155,8 +153,7 @@ class PrimeRewardManager:
             # If extra_info already exists as a list of dicts, update each one
             for i, l in enumerate(valid_response_length_list):
                 extra_info[i]["response_length"] = l
-
-
+    
         assert len(sequences_str) == len(ground_truth) == len(data_sources)
         try:
             scores, metrics = run_reward_scoring(
@@ -212,6 +209,6 @@ class PrimeRewardManager:
                 print(sequences_str[0])
 
         if return_dict:
-            return {"reward_tensor": reward_tensor}
+            return {"reward_tensor": reward_tensor, "reward_extra_info": metrics}
         else:
             return reward_tensor, metrics
