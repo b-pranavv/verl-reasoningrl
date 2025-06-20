@@ -18,7 +18,7 @@ data:
   truncation: error
   image_key: images
   video_key: videos
-  use_python: True
+  use_tool: True
   custom_cls:
       path: null
       name: null
