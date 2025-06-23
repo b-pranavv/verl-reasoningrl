@@ -273,11 +273,7 @@ class RLHFDataset(Dataset):
             from verl.utils.dataset.vision_utils import process_image, process_video
             
             if self.use_tool:
-                if 'extra_info' in row_dict and 'involved_classes' in row_dict['extra_info']:
-                    involved_classes = row_dict['extra_info']['involved_classes']
-                else:
-                    involved_classes = None
-                raw_prompt = self._pack_tool_input(row_dict['data_source'], self.prompt_template, messages, involved_classes)
+                raw_prompt = self._pack_tool_input(row_dict['data_source'], self.prompt_template, messages, row_dict['extra_info']['involved_classes'])
 
             else:
                 raw_prompt = self.processor.apply_chat_template(messages, add_generation_prompt=True, tokenize=False)
@@ -310,11 +306,7 @@ class RLHFDataset(Dataset):
 
         else:
             if self.use_tool:
-                if 'extra_info' in row_dict and 'involved_classes' in row_dict['extra_info']:
-                    involved_classes = row_dict['extra_info']['involved_classes']
-                else:
-                    involved_classes = None
-                raw_prompt = self._pack_tool_input(row_dict['data_source'], self.prompt_template, messages, involved_classes)
+                raw_prompt = self._pack_tool_input(row_dict['data_source'], self.prompt_template, messages, row_dict['extra_info']['involved_classes'])
 
             else:
                 raw_prompt = self.tokenizer.apply_chat_template(messages, add_generation_prompt=True, tokenize=False)
