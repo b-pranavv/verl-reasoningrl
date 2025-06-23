@@ -1,6 +1,7 @@
 import json
 import re
 from verl.workers.rollout.vllm_rollout.python_executor_sandbox import executeCode
+from verl.workers.rollout.vllm.rollout.bfcl_executor import BfclExecutor
 
 
 class ToolRouter:
@@ -147,7 +148,15 @@ class ToolRouter:
             return {'success': False, 'message': code_execution['error']}
     
     def execute_bfcl_tool(self, tool_call_list, class_list, env):
-        pass
+        bfcl_execution = BfclExecutor(timeout_seconds=8, capture_stdout=True)
+        
+        # convert tool_call_list to list of jsonl
+        tool_calls = [json.dumps(tool_call) for tool_call in tool_call_list]
+        tool_calls = str(tool_calls).replace("'", '"')
+
+        response, _ = bfcl_execution.execute_list(tool_calls, class_list, env)
+
+        return response[-1]
     
     def extract_classes(self, input_str):
         """Extract class names from the input string, it would be present as [Classes Involved: {classes_involved}]"""
