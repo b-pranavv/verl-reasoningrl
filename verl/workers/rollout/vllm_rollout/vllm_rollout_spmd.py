@@ -176,8 +176,8 @@ class vLLMRollout(BaseRollout):
             swap_space=80,
             # quantization="fp8",
             # cpu_offload_gb=40,
-            kv_cache_dtype=config.kv_cache_dtype,
-            calculate_kv_scales=(config.kv_cache_dtype == "fp8"),
+            # kv_cache_dtype=config.kv_cache_dtype,
+            # calculate_kv_scales=(config.kv_cache_dtype == "fp8"),
             enable_prefix_caching=False,
             preemption_mode="swap",
             # enable_prefix_caching=True, ##### this is in new verl

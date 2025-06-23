@@ -7,7 +7,7 @@ import traceback
 from contextlib import redirect_stdout
 from typing import Any, List, Tuple
 from tqdm import tqdm
-from verl.workers.rollout.vllm_rollout.bfclEnv.bfcl_env import BfclEnv
+from verl.workers.rollout.vllm_rollout.envs.bfcl_env import BfclEnv
 import resource  # For memory limiting (Unix only)
 
 

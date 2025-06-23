@@ -1,7 +1,8 @@
 import ast
 import re
 from copy import deepcopy
-from verl.workers.rollout.vllm_rollout.envs.bfcl_env import BfclEnv
+from verl.workers.rollout.vllm_rollout.bfclEnv.bfcl_env import BfclEnv 
+# from verl.workers.rollout.vllm_rollout.envs.bfcl_env import BfclEnv
 
 def response_checker(
     model_response_list: list, ground_truth_response_list: list):
