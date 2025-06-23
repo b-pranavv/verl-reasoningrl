@@ -136,6 +136,11 @@ class ToolRouter:
     
     
     def execute_python_tool(self, code, env=None):
+        
+        if 'code' not in code:
+            return {'success': False, 'message': 'Invalid code format. Expected a dictionary with a "code" key.'}
+        code = code['code']
+        
         code_execution = executeCode([code])
         
         code_execution = code_execution[0]

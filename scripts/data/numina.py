@@ -163,8 +163,7 @@ If a tool fails, the platform injects a JSON error object such as <tool_result>{
 
             data = {
             "data_source": data_source,
-            "prompt": [{'role': 'system', 'content': re_python_template_sys},
-                       {'role': 'user', 'content': example['question']}],
+            "question": example['question'],
             "ability": "fact-reasoning",
             "reward_model": {
                     "style": "rule",

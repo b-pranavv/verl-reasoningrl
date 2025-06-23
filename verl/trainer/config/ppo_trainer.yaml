@@ -19,6 +19,7 @@ data:
   image_key: images
   video_key: videos
   use_tool: True
+  prompt_template_name: re_tool_template_sys
   custom_cls:
       path: null
       name: null
