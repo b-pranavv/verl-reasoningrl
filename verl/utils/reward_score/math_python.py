@@ -266,7 +266,7 @@ def compute_score_math(solution_str, ground_truth, method='strict', format_score
 
     toolScore, toolReason = getToolReward(extract_output(solution_str))
 
-    correctnessScore, correctnessReason = getCorrectnessReward(solution_str, ground_truth['target'])
+    correctnessScore, correctnessReason = getCorrectnessReward(solution_str, ground_truth)
 
 
     reason = f"correctness score: {correctnessScore}, hard format score: {hardFormatScore}, soft format score: {softFormatScore}, tool score: {toolScore}, correctness reason: {correctnessReason}, format reason: {hardFormatReason}, tool reason: {toolReason}"

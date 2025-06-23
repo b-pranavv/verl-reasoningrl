@@ -423,14 +423,14 @@ class vLLMRolloutWithTool(vLLMRollout):
         return True
 
     def extract_tool_calls(self, output_str):
-        if not self.validate_tool_calls(output_str):
-            return []
+        # if not self.validate_tool_calls(output_str):
+        #     return []
 
         try:
-            pattern = r'<tool_call>((?:(?!</tool_call>).)*)</tool_call>'
-            matches = re.finditer(pattern, output_str, re.DOTALL)
+            pattern = r"<tool_call>(.*?)</tool_call>"
+            matches = re.findall(pattern, output_str, re.DOTALL)
             
-            return [match.group(1).strip() for match in matches]
+            return matches
         except Exception as e:
             return []
     
@@ -588,7 +588,7 @@ class vLLMRolloutWithTool(vLLMRollout):
                         output_str = self.tokenizer.decode(output_ids, skip_special_tokens=False)
                         full_str = self.tokenizer.decode(curr_inputs[idx], skip_special_tokens=False)
                         
-                        print("full_str: ", full_str)
+                        # print("full_str: ", full_str)
                         
                         '''
                         Removing first two calls because they come from the prompt (will need change if prompt changes)
@@ -651,7 +651,7 @@ class vLLMRolloutWithTool(vLLMRollout):
                         tool_responses_list = broadcast_data['tool_responses_list']
 
                         for idx, tool_router, tool_responses in zip(call_indices, tool_router_list, tool_responses_list):
-                            tool_response_str = f"<tool_response>\n{tool_responses}\n</tool_response>\n"
+                            tool_response_str = f"<tool_result>\n{tool_responses}\n</tool_result>\n"
                             print("Tool Response: ", tool_response_str)
                             output_ids = self.tokenizer.encode(tool_response_str, add_special_tokens=False)
                             curr_inputs[idx] += output_ids

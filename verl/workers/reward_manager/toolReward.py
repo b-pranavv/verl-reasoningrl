@@ -72,12 +72,15 @@ class ToolRewardManager():
             ground_truth = data_item.non_tensor_batch['reward_model']['ground_truth']
 
             data_source = data_item.non_tensor_batch['data_source']
+            
+            initial_config = data_item.non_tensor_batch['reward_model']['initial_config']
 
             score = self.compute_score(
                 data_source=data_source,
                 # tokenizer=self.tokenizer,
                 solution_str=sequences_str,
                 ground_truth=ground_truth,
+                extra_info=initial_config
             )
             # breakpoint()
             # if isinstance(score, dict):

@@ -10,8 +10,9 @@ class ToolRouter:
         self.complete_solution_str = complete_solution_str ## complete solution string is required for stateful tool calls
         self.output_str = output_str  ## output string is required for stateless tool calls
         
-        self.tool_calls = self.extract_tool_calls(complete_solution_str)
-        self.current_tool_call = self.extract_tool_calls(output_str)
+        ### TODO: Change the 6 based on the system prompt
+        self.tool_calls = self.extract_tool_calls(complete_solution_str)[6:]
+        self.current_tool_call = self.extract_tool_calls(output_str)[0]
     
     def validate_tool_calls(self, output_str):
         start_tags = re.findall(r'<tool_call>', output_str)
@@ -30,14 +31,14 @@ class ToolRouter:
         return True
 
     def extract_tool_calls(self, output_str):
-        if not self.validate_tool_calls(output_str):
-            return []
+        # if not self.validate_tool_calls(output_str):
+        #     return []
 
         try:
-            pattern = r'<tool_call>((?:(?!</tool_call>).)*)</tool_call>'
-            matches = re.finditer(pattern, output_str, re.DOTALL)
+            pattern = r"<tool_call>(.*?)</tool_call>"
+            matches = re.findall(pattern, output_str, re.DOTALL)
             
-            return [match.group(1).strip() for match in matches]
+            return matches
         except Exception as e:
             return []
         
@@ -77,26 +78,26 @@ class ToolRouter:
             res = self.parse_json(tool_call)
             if 'name' not in res or 'arguments' not in res:
                 print(f"Wrong tool call result: {res}")
-                return {'type': 'error', 'message': f'Wrong tool call result: {res}'}
+                return {'type': 'error', 'message': f'Wrong tool call result: {res}, name or arguments missing'}
             tool_name = res['name']
             if isinstance(res['arguments'], dict):
                 arguments = res['arguments']
                 tool_category = self.get_tool_category(tool_name)
                 if tool_category is None:
-                    return {'type': 'error', 'message': f'Invalid tool: {tool_name}'}
+                    return {'type': 'error', 'message': f'Invalid tool: {tool_name}, category not found'}
                 return {'type': 'tool', 'tool_category': tool_category, 'tool_name': tool_name, 'arguments': arguments}
             elif self.is_json(res['arguments']):
                     arguments = self.parse_json(res['arguments'])
                     tool_category = self.get_tool_category(tool_name)
                     if tool_category is None:
-                        return {'type': 'error', 'message': f'Invalid tool: {tool_name}'}
+                        return {'type': 'error', 'message': f'Invalid tool: {tool_name}, category not found'}
                     return {'type': 'tool', 'tool_category': tool_category, 'tool_name': tool_name, 'arguments': arguments}
             else:
                 print(f"Wrong argument format: {res['arguments']}")
-                return {'type': 'error', 'message': f"Wrong argument format: {res['arguments']}"}
+                return {'type': 'error', 'message': f"Wrong argument format: {res['arguments']}, expected a JSON object or string"}
         else:
             print(f"Wrong tool call completion result: {tool_call}")
-            return {'type': 'error', 'message': f'Wrong tool call format: {tool_call}'}
+            return {'type': 'error', 'message': f'Wrong tool call format: {tool_call}, expected a JSON object or string'}
         
         
 

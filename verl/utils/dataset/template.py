@@ -61,7 +61,7 @@ re_tool_template_sys = '''\
 - Any <tool_call>...</tool_call> not begining at a new line is treated as ordinary text and no <tool_result>...</tool_result> is provided.
 
 **Error Handling:**
-If a tool fails, the platform injects a JSON error object such as <tool_result>{"error":"<ERROR_STRING>"}</tool_result>. Phi should analyize error in thinking block and either retry with fixes (using a new <tool_call>) or switch approaches if tools fails.
+If a tool fails, the platform injects a JSON error object such as <tool_result>{"error":"<ERROR_STRING>"}</tool_result>. Phi should analyize error in thinking block and either retry with fixes or switch approaches if tools fails.
 '''
 prompt_template_dict = {}
 prompt_template_dict['re_python_template_sys'] = re_python_template_sys

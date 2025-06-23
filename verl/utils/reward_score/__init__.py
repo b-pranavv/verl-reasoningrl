@@ -52,7 +52,11 @@ def default_compute_score(data_source, solution_str, ground_truth, extra_info=No
         from . import math_dapo
 
         res = math_dapo.compute_score(solution_str, ground_truth)
-    elif data_source in ['opens1', 'AIME', 'AMC', 'GSM8K', 'MATH-500', 'Olympiad', 'numina','math-500', 'tool_val']:
+        
+    elif data_source in ['bfcl']:
+        from . import bfcl
+        res = bfcl.compute_score(solution_str, ground_truth, extra_info)
+    elif data_source in ['python', 'opens1', 'AIME', 'AMC', 'GSM8K', 'MATH-500', 'Olympiad', 'numina','math-500', 'tool_val']:
         from . import math_python
         res = math_python.compute_score_math(solution_str, ground_truth)
     elif data_source in [
