@@ -161,16 +161,9 @@ class RLHFDataset(Dataset):
             "type": "string",
             "description": "Python code to execute. Use print() for output"
           },
-          "new_session: {
+          "new_session": {
             "type": "bool",
             "description": "Whether to start a new python session rather than reuse the persistent session for this task; Default is False."
-          },                
-          "libraries": {
-            "type": "array",
-            "description": "A list of third-party libraries used in the code (e.g., ['numpy', 'pandas']). Optional, only needed for clarity or reproducibility.",
-            "items": {
-              "type": "string"
-            }              
           }
         },        
         "required": ["code"]
