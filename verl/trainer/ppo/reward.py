@@ -78,6 +78,9 @@ def load_reward_manager(config, tokenizer, num_examine,rewardType=None, **reward
     elif reward_manager_name == 'python':
         from verl.workers.reward_manager import PythonRewardManager
         reward_manager_cls = PythonRewardManager
+    elif reward_manager_name == 'tool':
+        from verl.workers.reward_manager import ToolRewardManager
+        reward_manager_cls = ToolRewardManager
     else:
         raise NotImplementedError
 

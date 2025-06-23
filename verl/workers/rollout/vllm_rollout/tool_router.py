@@ -1,7 +1,7 @@
 import json
 import re
 from verl.workers.rollout.vllm_rollout.python_executor_sandbox import executeCode
-from verl.workers.rollout.vllm.rollout.bfcl_executor import BfclExecutor
+from verl.workers.rollout.vllm_rollout.bfcl_executor import BfclExecutor
 
 
 class ToolRouter:

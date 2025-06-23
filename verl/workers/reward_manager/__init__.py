@@ -17,6 +17,7 @@ from .dapo import DAPORewardManager
 from .naive import NaiveRewardManager
 from .prime import PrimeRewardManager
 from .pythonReward import PythonRewardManager
+from .toolReward import ToolRewardManager
 
 
 __all__ = ["BatchRewardManager", "DAPORewardManager", "NaiveRewardManager", "PrimeRewardManager", "PythonRewardManager"]

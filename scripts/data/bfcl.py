@@ -34,7 +34,7 @@ def preprocess_bfcl_dataset() -> Dataset:
 
     dataset = Dataset.from_list(multi_turn_base_data)
     dataset = dataset.map(lambda x: {
-            "data_source": "bfcl_v3_multi_turn_base",
+            "data_source": "bfcl",
             "question": x["question"],
             "ability": "function-calling",
             "reward_model": {

@@ -5,14 +5,15 @@ set -x
 export WANDB_NAME='hyper_config'
 export WANDB_PROJECT='reasoningrl-tool-joykirat'
 export WANDB_TOKEN='c8f694b1460eaf8f06beec994e5aa1bb56183688'
-export EXPERIMENT_NAME='phi_unified_tool'
+export EXPERIMENT_NAME='qwen_dummy_unified'
 export WANDB_HOST='https://api.wandb.ai'
 
 export PROJECT_NAME=$WANDB_PROJECT
-export PRETRAINED="/data/checkpoints/phi-4-o3-sft-04_12_25_32k"
-export DATA_TRAIN="/data/phi-4-reasoning-plus-data/phi_math_new/train.parquet"
-export DATA_TEST="/data/phi-4-reasoning-plus-data/phi_math_new/test.parquet"
-export OUTPUT_DIR="/data/log_dir/${EXPERIMENT_NAME}/output"
+# export PRETRAINED="/data/checkpoints/phi-4-o3-sft-04_12_25_32k"
+export PRETRAINED="Qwen/Qwen2.5-7B-Instruct"
+export DATA_TRAIN="/home/aiscuser/ReasoningRL/verl/scripts/data/numina_dataset/train.parquet"
+export DATA_TEST="/home/aiscuser/ReasoningRL/verl/scripts/data/numina_dataset/test.parquet"
+export OUTPUT_DIR="data/log_dir/${EXPERIMENT_NAME}/output"
 export GPUS=4
 export NODES=1
 export CUDA_LAUNCH_BLOCKING=1

@@ -491,6 +491,51 @@ class ActorRolloutRefWorker(Worker):
                 layered_summon=self.config.rollout.get('layered_summon', False),
             )
             log_gpu_memory_usage("After building sharding manager", logger=logger)
+        
+        elif rollout_name == "vllm_with_tool":
+            from verl.workers.rollout.vllm_rollout import vllm_mode, vLLMRolloutWithTool
+            from verl.workers.sharding_manager.fsdp_vllm import FSDPVLLMShardingManager
+
+            log_gpu_memory_usage(f"Before building {rollout_name} rollout", logger=logger)
+            local_path = copy_to_local(self.config.model.path, use_shm=self.config.model.get('use_shm', False))
+            lora_kwargs = {'lora_kwargs': {"enable_lora":True, "max_loras":1, "max_lora_rank":self._lora_rank}} if self._is_lora else {}
+            # lora_kwargs = {}
+            if vllm_mode == "customized":
+                rollout = vLLMRolloutWithTool(
+                    actor_module=self.actor_module_fsdp,
+                    config=self.config.rollout,
+                    tokenizer=self.tokenizer,
+                    model_hf_config=self.actor_model_config,
+                    trust_remote_code=trust_remote_code,
+                    **lora_kwargs)
+            elif vllm_mode == "spmd":
+                from verl.workers.rollout.vllm_rollout import vLLMRolloutWithTool
+
+                vllm_rollout_cls = vLLMRolloutWithTool
+                rollout = vllm_rollout_cls(
+                    model_path=local_path,
+                    config=self.config.rollout,
+                    tokenizer=self.tokenizer,
+                    model_hf_config=self.actor_model_config,
+                    device_mesh=rollout_device_mesh,
+                    trust_remote_code=trust_remote_code,
+                    **lora_kwargs)
+            else:
+                raise NotImplementedError("vllm_mode must be 'customized' or 'spmd'")
+
+            log_gpu_memory_usage(f"After building {rollout_name} rollout", logger=logger)
+            full_params = torch.distributed.get_world_size() == 1
+            rollout_sharding_manager = FSDPVLLMShardingManager(
+                module=self.actor_module_fsdp,
+                inference_engine=rollout.inference_engine,
+                model_config=self.actor_model_config,
+                full_params=full_params,
+                device_mesh=rollout_device_mesh,
+                offload_param=self._is_offload_param,
+                load_format=self.config.rollout.load_format,
+                layered_summon=self.config.rollout.get('layered_summon', False),
+            )
+            log_gpu_memory_usage("After building sharding manager", logger=logger)
 
         elif rollout_name == "sglang":
             from verl.workers.rollout.sglang_rollout import SGLangRollout

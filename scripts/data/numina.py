@@ -162,16 +162,20 @@ If a tool fails, the platform injects a JSON error object such as <tool_result>{
 
 
             data = {
-            "data_source": data_source,
-            "question": example['question'],
-            "ability": "fact-reasoning",
-            "reward_model": {
+                "data_source": 'python',
+                "question": example['question'],
+                "ability": "fact-reasoning",
+                "reward_model": {
                     "style": "rule",
-                    "ground_truth": solution
+                    "ground_truth": example['solution'],
+                    "initial_config": None,
                 },
             "extra_info": {
                 'split': split,
-                    'index': idx,
+                'index': str(idx),
+                'id': str(idx),
+                'involved_classes': None,
+                "num_turns": None,
             }
         }
             return data

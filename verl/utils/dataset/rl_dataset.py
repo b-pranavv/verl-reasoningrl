@@ -178,11 +178,14 @@ class RLHFDataset(Dataset):
         else:
             raise ValueError(f"Unsupported datasetName: {datasetName}. Supported values are 'python' and 'bfcl'.")
             
-            
-        return self.tokenizer.apply_chat_template([
+        prompt =  self.tokenizer.apply_chat_template([
             {'role': 'system', 'content': prompt_template.replace('{tools_details}', tool_details)},
             {'role': 'user', 'content': user_input}
         ], add_generation_prompt=True, tokenize=False) + "<think>"
+        
+        # breakpoint()
+        
+        return prompt
     
 
     def _read_files_and_tokenize(self):

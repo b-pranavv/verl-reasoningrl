@@ -449,10 +449,13 @@ class vLLMRolloutWithTool(vLLMRollout):
     def batch_execute(self, tool_router_list: List[ToolRouter], env_list: List[str] = None):
         """Execute a batch of tool calls."""
         tool_response_list = []
+        print(f"Tool Router List: {tool_router_list}")
         
-        if env_list is None:
+        if len(env_list) == 0:
             env_list = [None] * len(tool_router_list)
         else:
+            print(f"Env List: {env_list}")
+            
             assert len(tool_router_list) == len(env_list), "tool_router_list and env_list must have the same length."
         
         # Execute tool calls in parallel
@@ -563,7 +566,7 @@ class vLLMRolloutWithTool(vLLMRollout):
                     outputs = self.inference_engine.generate(
                         prompts=vllm_inputs,
                         sampling_params=self.sampling_params,
-                        use_tqdm=False
+                        use_tqdm=True
                     )
 
                 # collect all tool calls
@@ -582,8 +585,10 @@ class vLLMRolloutWithTool(vLLMRollout):
                         curr_inputs[idx] += output_ids
                         result_mask_list[idx] += [1] * len(output_ids)
 
-                        output_str = self.tokenizer.decode(output_ids)
-                        full_str = self.tokenizer.decode(curr_inputs[idx])
+                        output_str = self.tokenizer.decode(output_ids, skip_special_tokens=False)
+                        full_str = self.tokenizer.decode(curr_inputs[idx], skip_special_tokens=False)
+                        
+                        print("full_str: ", full_str)
                         
                         '''
                         Removing first two calls because they come from the prompt (will need change if prompt changes)
@@ -592,6 +597,8 @@ class vLLMRolloutWithTool(vLLMRollout):
                         ## TODO: Check how many tools calls should be removed based on the prompt being used
                         
                         toolRouter = ToolRouter(full_str, output_str)
+                        
+                        print("Tool calls: ", toolRouter.tool_calls)
                         
                         if toolRouter.tool_call_present():
                             tool_router_list.append(toolRouter)
@@ -624,11 +631,11 @@ class vLLMRolloutWithTool(vLLMRollout):
                     # Only tp_rank 0 executes the tools
                     if self.tp_rank == 0:
                         active_env_list = [env_list[i] for i in call_indices if env_list is not None]
-                        tool_responses_list = self.batch_execute(active_env_list, tool_calls_list, extract_classes_list)
+                        tool_responses_list = self.batch_execute(tool_router_list, active_env_list)
                         
                         # Prepare data for broadcasting
                         broadcast_data = {
-                            'tool_calls_list': tool_calls_list,
+                            'tool_router_list': tool_router_list,
                             'call_indices': call_indices,
                             'tool_responses_list': tool_responses_list
                         }
@@ -639,20 +646,16 @@ class vLLMRolloutWithTool(vLLMRollout):
                     
                     # All ranks process the broadcasted data
                     if broadcast_data is not None:
-                        tool_calls_list = broadcast_data['tool_calls_list']
+                        tool_router_list = broadcast_data['tool_router_list']
                         call_indices = broadcast_data['call_indices']
                         tool_responses_list = broadcast_data['tool_responses_list']
 
-                        for idx, tool_calls, tool_responses in zip(call_indices, tool_calls_list, tool_responses_list):
+                        for idx, tool_router, tool_responses in zip(call_indices, tool_router_list, tool_responses_list):
                             tool_response_str = f"<tool_response>\n{tool_responses}\n</tool_response>\n"
-                            # print("tool_response_str: ", tool_response_str)
-                            tool_response_str = "\n<|im_start|>system\n" + tool_response_str + "<|im_end|>"
-                            output_ids = self.tokenizer.encode(tool_response_str)
+                            print("Tool Response: ", tool_response_str)
+                            output_ids = self.tokenizer.encode(tool_response_str, add_special_tokens=False)
                             curr_inputs[idx] += output_ids
                             result_mask_list[idx] += [0] * len(output_ids)
-
-                            curr_inputs[idx] += self.gen_ids
-                            result_mask_list[idx] += [0] * len(self.gen_ids)
 
                 # check if need to truncate, if yes, truncate, and remove from active; if no, update curr_max_tokens
                 length_checked_active_indices = []
