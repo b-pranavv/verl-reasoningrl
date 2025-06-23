@@ -30,6 +30,8 @@ from transformers import PreTrainedTokenizer, ProcessorMixin
 
 import verl.utils.torch_functional as verl_F
 from verl.utils.model import compute_position_id_with_mask
+from verl.utils.dataset.bfcl_dataset_utils import construct_tools_from_involved_classes
+
 
 logger = logging.getLogger(__name__)
 
@@ -115,6 +117,7 @@ class RLHFDataset(Dataset):
         self.need_tools_kwargs = config.get("need_tools_kwargs", False)
         self.filter_prompts = config.get("filter_prompts", True)
         self.serialize_dataset = False
+        self.use_tool = config.get("use_tool", False)
         self._download()
         self._read_files_and_tokenize()
 
@@ -125,6 +128,20 @@ class RLHFDataset(Dataset):
         for i, parquet_file in enumerate(data_files):
             self.data_files[i] = copy_to_local(src=parquet_file, cache_dir=self.cache_dir, use_shm=self.use_shm)
 
+    def _pack_python_input(self, prompt_template, user_input):
+        return self.tokenizer.apply_chat_template([
+                {'role': 'system', 'content': prompt_template}, 
+                {'role': 'user', 'content': user_input}
+            ], add_generation_prompt=True, tokenize=False) + "<think>"
+    def _pack_bfcl_input(self, prompt_template, involved_classes, user_input):
+        parsed = json.loads(user_input)
+        return self.tokenizer.apply_chat_template([
+                {'role': 'system', 'content': prompt_template.format(
+                    tools=construct_tools_from_involved_classes(involved_classes), 
+                    classes_involved=involved_classes)}, 
+                {'role': 'user', 'content': parsed[0][0]["content"]}
+            ], add_generation_prompt=True, tokenize=False) + "<think>"
+        
     def _read_files_and_tokenize(self):
         dataframes = []
         for parquet_file in self.data_files:
@@ -139,11 +156,18 @@ class RLHFDataset(Dataset):
         if self.filter_overlong_prompts:
             tokenizer = self.tokenizer
             prompt_key = self.prompt_key
-            self.dataframe = self.dataframe.filter(
-                lambda doc: len(tokenizer.apply_chat_template(doc[prompt_key], add_generation_prompt=True)) <= self.max_prompt_length,
-                num_proc=self.num_workers,
-                desc=f"Filtering prompts longer than {self.max_prompt_length} tokens",
-            )
+            if self.use_tool:
+                self.dataframe = self.dataframe.filter(
+                    lambda doc: len(tokenizer.encode(self._pack_bfcl_input(self.prompt_template, doc['extra_info']['involved_classes'], doc[prompt_key]))
+                                ) <= self.max_prompt_length,
+                    num_proc=self.num_workers,
+                    desc=f"Filtering prompts longer than {self.max_prompt_length} tokens")
+            else:
+                self.dataframe = self.dataframe.filter(
+                    lambda doc: len(tokenizer.apply_chat_template(doc[prompt_key], add_generation_prompt=True)) <= self.max_prompt_length,
+                    num_proc=self.num_workers,
+                    desc=f"Filtering prompts longer than {self.max_prompt_length} tokens",
+                )
 
             print(f"filter dataset len: {len(self.dataframe)}")
 
@@ -188,8 +212,11 @@ class RLHFDataset(Dataset):
 
         if self.processor is not None:
             from verl.utils.dataset.vision_utils import process_image, process_video
-
-            raw_prompt = self.processor.apply_chat_template(messages, add_generation_prompt=True, tokenize=False)
+            
+            if self.use_tool:
+                raw_prompt = self._pack_bfcl_input(self.prompt_template, row_dict['extra_info']['involved_classes'], messages)
+            else:
+                raw_prompt = self.processor.apply_chat_template(messages, add_generation_prompt=True, tokenize=False)
             multi_modal_data = {}
 
             images = None
@@ -218,7 +245,10 @@ class RLHFDataset(Dataset):
             row_dict["multi_modal_inputs"].pop("second_per_grid_ts", None)
 
         else:
-            raw_prompt = self.tokenizer.apply_chat_template(messages, add_generation_prompt=True, tokenize=False)
+            if self.use_tool:
+                raw_prompt = self._pack_bfcl_input(self.prompt_template, row_dict['extra_info']['involved_classes'], messages)
+            else:
+                raw_prompt = self.tokenizer.apply_chat_template(messages, add_generation_prompt=True, tokenize=False)
             model_inputs = self.tokenizer(raw_prompt, return_tensors="pt", add_special_tokens=False)
             input_ids = model_inputs.pop("input_ids")
             attention_mask = model_inputs.pop("attention_mask")
