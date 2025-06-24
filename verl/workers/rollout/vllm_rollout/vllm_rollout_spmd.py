@@ -584,7 +584,7 @@ class vLLMRolloutWithTool(vLLMRollout):
                         output_str = self.tokenizer.decode(output_ids, skip_special_tokens=False)
                         full_str = self.tokenizer.decode(curr_inputs[idx], skip_special_tokens=False)
                         
-                        # print("full_str: ", full_str)
+                        print("full_str: ", full_str)
                         
                         '''
                         Removing first two calls because they come from the prompt (will need change if prompt changes)

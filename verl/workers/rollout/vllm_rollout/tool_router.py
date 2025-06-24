@@ -12,7 +12,9 @@ class ToolRouter:
         
         ### TODO: Change the 6 based on the system prompt
         self.tool_calls = self.extract_tool_calls(complete_solution_str)[6:]
-        self.current_tool_call = self.extract_tool_calls(output_str)[0]
+        self.current_tool_call = self.extract_tool_calls(output_str)
+        if len(self.current_tool_call) > 0:
+            self.current_tool_call = self.current_tool_call[0]
     
     def validate_tool_calls(self, output_str):
         start_tags = re.findall(r'<tool_call>', output_str)
