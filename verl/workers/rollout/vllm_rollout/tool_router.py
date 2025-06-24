@@ -156,9 +156,15 @@ class ToolRouter:
     def execute_bfcl_tool(self, tool_call_list, class_list, env):
         bfcl_execution = BfclExecutor(timeout_seconds=8, capture_stdout=True)
         
-        # convert tool_call_list to list of jsonl
-        tool_calls = [json.dumps(tool_call) for tool_call in tool_call_list]
-        tool_calls = str(tool_calls).replace("'", '"')
+        tool_calls = []
+        for tool_call in tool_call_list:
+            tool_call_dict = {
+                "name": tool_call['tool_name'], 
+                "args": tool_call['arguments']
+            }
+            tool_calls.append(json.dumps(tool_call_dict))
+        
+        # print("Tool Calls: ", tool_calls)
 
         response, _ = bfcl_execution.execute_list(tool_calls, class_list, env)
 

@@ -449,13 +449,10 @@ class vLLMRolloutWithTool(vLLMRollout):
     def batch_execute(self, tool_router_list: List[ToolRouter], env_list: List[str] = None):
         """Execute a batch of tool calls."""
         tool_response_list = []
-        print(f"Tool Router List: {tool_router_list}")
         
         if len(env_list) == 0:
             env_list = [None] * len(tool_router_list)
-        else:
-            print(f"Env List: {env_list}")
-            
+        else:            
             assert len(tool_router_list) == len(env_list), "tool_router_list and env_list must have the same length."
         
         # Execute tool calls in parallel
@@ -530,7 +527,6 @@ class vLLMRolloutWithTool(vLLMRollout):
                 for env in prompts.non_tensor_batch['env']:
                     for _ in range(self.sampling_params.n):
                         env_list.append(env)
-            
             elif 'initial_config' in prompts.non_tensor_batch:
                 env_list = []
                 for env in prompts.non_tensor_batch['initial_config']:
@@ -598,7 +594,7 @@ class vLLMRolloutWithTool(vLLMRollout):
                         
                         toolRouter = ToolRouter(full_str, output_str)
                         
-                        print("Tool calls: ", toolRouter.tool_calls)
+                        # print("Tool calls: ", toolRouter.tool_calls)
                         
                         if toolRouter.tool_call_present():
                             tool_router_list.append(toolRouter)
