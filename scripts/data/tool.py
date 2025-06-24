@@ -180,10 +180,10 @@ def combine_datasets():
     bfcl_train_dataset, bfcl_test_dataset = preprocess_bfcl_dataset()
     
     # Combine the two datasets
-    min_len_train = min(len(python_train_dataset), len(bfcl_train_dataset))
+    min_len_train = max(min(len(python_train_dataset), len(bfcl_train_dataset)), 6000)  # Ensure train set has at least 6000 samples
     min_len_test = max(min(len(python_test_dataset), len(bfcl_test_dataset)), 50)  # Ensure test set has at least 50 samples
     
-    train_dataset = datasets.concatenate_datasets([python_train_dataset.select(range(min_len_train)), bfcl_train_dataset.select(range(min_len_train))])
+    train_dataset = datasets.concatenate_datasets([python_train_dataset.select(range(min_len_train)), bfcl_train_dataset])
     test_dataset = datasets.concatenate_datasets([python_test_dataset.select(range(min_len_test)), bfcl_test_dataset.select(range(min_len_test))])
     
     train_dataset = train_dataset.shuffle(seed=42)
@@ -200,7 +200,7 @@ if __name__ == '__main__':
 
 
     train_dataset, test_dataset = combine_datasets()
-    makedirs(args.local_dir)
+    makedirs(args.local_dir, exist_ok=True)
     
     # Save the datasets to parquet files
     train_dataset.to_parquet(os.path.join(args.local_dir, 'train.parquet'))

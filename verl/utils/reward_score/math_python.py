@@ -99,7 +99,7 @@ def getToolReward(output_snippet):
     n = len(output_snippet) # total tool usage
     m = 0 # total compilation success
     for i in range(n):
-        if 'Compiled successfully' in output_snippet[i]:
+        if "'success': True" in output_snippet[i]:
             m += 1
 
     return (m / n) * 1.0, f"total tool usage: {n}, total compilation sucess: {m}, tool score: {(m / n) * 1.0}"

@@ -152,14 +152,14 @@ def validate_tool_calls(output_str):
 
 
 def extract_tool_calls(output_str):
-    if not validate_tool_calls(output_str):
-        return []
+    # if not self.validate_tool_calls(output_str):
+    #     return []
 
     try:
-        pattern = r'<tool_call>((?:(?!</tool_call>).)*)</tool_call>'
-        matches = re.finditer(pattern, output_str, re.DOTALL)
+        pattern = r"<tool_call>(.*?)</tool_call>"
+        matches = re.findall(pattern, output_str, re.DOTALL)
         
-        return [match.group(1).strip() for match in matches]
+        return matches
     except Exception as e:
         return []
 
@@ -239,7 +239,7 @@ def compute_score(solution_str, ground_truth, initial_config):
         ground_truth: the ground truth
     """
 
-    tool_calls = extract_tool_calls(solution_str)[2:]
+    tool_calls = extract_tool_calls(solution_str)[6:]
     tool_calls_parsed = parse_list_of_tool_calls(tool_calls)
     ground_truth_parsed = ast.literal_eval(ground_truth)
     classes = extract_classes(solution_str)
@@ -261,13 +261,14 @@ def compute_score(solution_str, ground_truth, initial_config):
     format_reward = format_reward_score(solution_str)
     
     
-    answer_score = (func_score  + state_score) / 2
-    format_score = format_reward * 0.2    
+    answer_score = func_score  + state_score
+    format_score = format_reward  
 
     # print(f"state_score {state_score}, func_score {func_score}, format_reward {format_reward}, answer_score {answer_score}")
     
     return {
         'answer': answer_score,
-        'format': 0, # no format score
+        'format': format_score,
         'tool': 0,
-        "reason": "test"}
+        "reason": f"state_score {state_score}, func_score {func_score}, format_reward {format_reward}, answer_score {answer_score}"
+    }

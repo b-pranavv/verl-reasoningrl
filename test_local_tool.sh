@@ -20,13 +20,13 @@ export CUDA_LAUNCH_BLOCKING=1
 export RAY_DEDUP_LOGS=0
 
 # Set run variables
-export RUN_N=4
+export RUN_N=8
 export PPO_EPOCHS=4
 export MAX_RESPONSE_LENGTH=32768
 #export MAX_RESPONSE_LENGTH=20480 # hacked 20k
 export PPO_MAX_TOKEN_LENGTH=32768
 export PER_GPU_TRAIN_BATCH_SIZE=2
-export PER_GPU_VAL_BATCH_SIZE=2
+export PER_GPU_VAL_BATCH_SIZE=4
 #export BATCH_SIZE=1024
 export LR=1e-7
 export GRADCLIP=0.2
