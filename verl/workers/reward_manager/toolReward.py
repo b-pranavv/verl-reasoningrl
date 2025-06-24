@@ -87,10 +87,10 @@ class ToolRewardManager():
             reason = score['reason']
             if(self.rewardType == 'val'):
                 score = score['answer']
-                if(score <= 0):
-                    score = 0
-                else:
+                if(score == 2):
                     score = 1
+                else:
+                    score = 0
             elif(self.rewardType == 'train'):
                 score = score['format'] + score['answer'] + score['tool']
             # else:
@@ -114,15 +114,15 @@ class ToolRewardManager():
             if data_source not in already_print_data_sources:
                 already_print_data_sources[data_source] = 0
 
-            if already_print_data_sources[data_source] < self.num_examine:
-                already_print_data_sources[data_source] += 1
-                print('-' * 20)
-                print(f"data_source: \n{data_source}")
-                print(f"sequences_str: \n{sequences_str}")
-                print(f"ground_truth: \n{ground_truth}")
-                print(f"score: \n{score}")  
-                print(f"reason: \n{reason}")
-                print('-' * 20)
+            # if already_print_data_sources[data_source] < self.num_examine:
+            #     already_print_data_sources[data_source] += 1
+            #     print('-' * 20)
+            #     print(f"data_source: \n{data_source}")
+            #     print(f"sequences_str: \n{sequences_str}")
+            #     print(f"ground_truth: \n{ground_truth}")
+            #     print(f"score: \n{score}")  
+            #     print(f"reason: \n{reason}")
+            #     print('-' * 20)
 
         if save_path is not None:
             save_file.close()

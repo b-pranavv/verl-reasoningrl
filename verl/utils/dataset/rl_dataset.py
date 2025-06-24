@@ -172,16 +172,22 @@ class RLHFDataset(Dataset):
   }
 ]'''
         
+            prompt =  self.tokenizer.apply_chat_template([
+                {'role': 'system', 'content': prompt_template.replace('{tool_details}', tool_details)},
+                {'role': 'user', 'content': user_input}
+            ], add_generation_prompt=True, tokenize=False) + "<think>"
         elif datasetName == 'bfcl':
             tool_details = construct_tools_from_involved_classes(involved_classes) + f"\n\n[Classes Involved: {involved_classes}]"
+            
+            parsed = json.loads(user_input)
+            prompt = self.tokenizer.apply_chat_template([
+                {'role': 'system', 'content': prompt_template.replace('{tool_details}', tool_details)},
+                {'role': 'user', 'content': parsed[0][0]["content"]}
+            ], add_generation_prompt=True, tokenize=False) + "<think>"
         
         else:
             raise ValueError(f"Unsupported datasetName: {datasetName}. Supported values are 'python' and 'bfcl'.")
             
-        prompt =  self.tokenizer.apply_chat_template([
-            {'role': 'system', 'content': prompt_template.replace('{tool_details}', tool_details)},
-            {'role': 'user', 'content': user_input}
-        ], add_generation_prompt=True, tokenize=False) + "<think>"
         
         # breakpoint()
         

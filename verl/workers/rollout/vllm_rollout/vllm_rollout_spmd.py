@@ -541,7 +541,7 @@ class vLLMRolloutWithTool(vLLMRollout):
             result_mask_list = [[] for _ in range(len(curr_inputs))]
 
             # generate until all inputs are completed
-            for step in range(self.config.max_turns):
+            for step in range(20):
                 if len(active_indices) == 0:
                     break
 
@@ -581,10 +581,10 @@ class vLLMRolloutWithTool(vLLMRollout):
                         curr_inputs[idx] += output_ids
                         result_mask_list[idx] += [1] * len(output_ids)
 
-                        output_str = self.tokenizer.decode(output_ids, skip_special_tokens=False)
-                        full_str = self.tokenizer.decode(curr_inputs[idx], skip_special_tokens=False)
+                        output_str = self.tokenizer.decode(output_ids)
+                        full_str = self.tokenizer.decode(curr_inputs[idx])
                         
-                        print("full_str: ", full_str)
+                        # print("full_str: ", full_str)
                         
                         '''
                         Removing first two calls because they come from the prompt (will need change if prompt changes)
@@ -648,7 +648,7 @@ class vLLMRolloutWithTool(vLLMRollout):
 
                         for idx, tool_router, tool_responses in zip(call_indices, tool_router_list, tool_responses_list):
                             tool_response_str = f"<tool_result>\n{tool_responses}\n</tool_result>\n"
-                            print("Tool Response: ", tool_response_str)
+                            # print("Tool Response: ", tool_response_str)
                             output_ids = self.tokenizer.encode(tool_response_str, add_special_tokens=False)
                             curr_inputs[idx] += output_ids
                             result_mask_list[idx] += [0] * len(output_ids)

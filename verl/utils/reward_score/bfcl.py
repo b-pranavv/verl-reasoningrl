@@ -1,8 +1,8 @@
 import ast
 import re
+import json
 from copy import deepcopy
-from verl.workers.rollout.vllm_rollout.envs.bfcl_env import BfclEnv 
-# from verl.workers.rollout.vllm_rollout.envs.bfcl_env import BfclEnv
+from verl.workers.rollout.vllm_rollout.envs.bfcl_env import BfclEnv
 
 def response_checker(
     model_response_list: list, ground_truth_response_list: list):
@@ -152,14 +152,14 @@ def validate_tool_calls(output_str):
 
 
 def extract_tool_calls(output_str):
-    # if not self.validate_tool_calls(output_str):
-    #     return []
+    if not validate_tool_calls(output_str):
+        return []
 
     try:
-        pattern = r"<tool_call>(.*?)</tool_call>"
-        matches = re.findall(pattern, output_str, re.DOTALL)
+        pattern = r'<tool_call>((?:(?!</tool_call>).)*)</tool_call>'
+        matches = re.finditer(pattern, output_str, re.DOTALL)
         
-        return matches
+        return [match.group(1).strip() for match in matches]
     except Exception as e:
         return []
 
@@ -186,12 +186,13 @@ def format_reward_score(solution_str):
     format_reward = min(1, count_matches / (len(assistant_msg_list))) if len(assistant_msg_list) > 0 else 0
     return format_reward
 
-def execute_list(queries, classes, initial_config):
+def execute_list(queries, classes, initial_config, bfcl_format=False):
     bfcl_env = BfclEnv()
     execution_results, involved_instances = bfcl_env.execute_multi_turn_func_call(
         func_call_list=queries,
         initial_config=initial_config,
         involved_classes=classes,
+        bfcl_format=bfcl_format,
     )
 
     return execution_results, involved_instances
@@ -232,6 +233,39 @@ def get_state_score(solution_state, ground_truth_state):
     return state_score
 
 
+def convert_json_to_function_calls(json_string):
+    """
+    Convert a JSON string with function calls to a string representation of function calls.
+    
+    Example:
+    Input: [{"name": "get_current_weather", "arguments": {"location": "San Francisco, CA", "format": "fahrenheit"}}]
+    Output: [get_current_weather(location='San Francisco, CA', format='fahrenheit')]
+    """
+    try:
+        # Parse the JSON string
+        data = json.loads(json_string)
+        
+        function_calls = []
+        
+        # Process each function call in the JSON
+        for item in data:
+            func_name = item["name"]
+            arguments = item["arguments"]
+            
+            # Format the arguments as key=value pairs
+            arg_strings = [f"{key}={repr(value)}" for key, value in arguments.items()]
+            arg_string = ", ".join(arg_strings)
+            
+            # Create the function call string
+            function_call = f"{func_name}({arg_string})"
+            function_calls.append(function_call)
+        
+        # Format the final result as a list
+        return f"[{', '.join(function_calls)}]"
+    except:
+        return "JSON parsing error"
+
+
 def compute_score(solution_str, ground_truth, initial_config):
     """ The scoring function for math problems.
     Args:
@@ -239,30 +273,36 @@ def compute_score(solution_str, ground_truth, initial_config):
         ground_truth: the ground truth
     """
 
-    tool_calls = extract_tool_calls(solution_str)[6:]
-    tool_calls_parsed = parse_list_of_tool_calls(tool_calls)
+    tool_calls = extract_tool_calls(solution_str)[2:]
+    # tool_calls_parsed = parse_list_of_tool_calls(tool_calls)
+    tool_calls_fc = [convert_json_to_function_calls(call) for call in tool_calls]
+    tool_calls_parsed = parse_list_of_tool_calls(tool_calls_fc)
     ground_truth_parsed = ast.literal_eval(ground_truth)
     classes = extract_classes(solution_str)
 
     gt_calls = ground_truth_parsed[0]
     ground_truth_formatted = [f"[{call}]" for call in gt_calls]
 
+    # print(tool_calls)
+    # print(ground_truth_formatted)
+
     exec_sol, involved_instances_solution = execute_list(tool_calls, classes, deepcopy(initial_config))
-    exec_gt, involved_instances_gt = execute_list(ground_truth_formatted, classes, deepcopy(initial_config))
+    exec_gt, involved_instances_gt = execute_list(ground_truth_formatted, classes, deepcopy(initial_config), bfcl_format=True)
 
     # print("tool_calls", tool_calls)
     # print("exec_sol", exec_sol)
     # print("ground_truth_formatted", ground_truth_formatted)
-    # print("exec_gt", exec_gt)
+    # print("exec_gt", exec_gt, "\n")
     
     state_score = get_state_score(involved_instances_solution, involved_instances_gt)
     func_match = response_checker(tool_calls_parsed, ground_truth_parsed[0])
     func_score = 1 if func_match['valid'] else 0
     format_reward = format_reward_score(solution_str)
     
-    
-    answer_score = func_score  + state_score
-    format_score = format_reward  
+    answer_score = (func_score  + state_score)
+    format_score = format_reward
+
+    # print(func_score, state_score, answer_score)
 
     # print(f"state_score {state_score}, func_score {func_score}, format_reward {format_reward}, answer_score {answer_score}")
     
@@ -270,5 +310,4 @@ def compute_score(solution_str, ground_truth, initial_config):
         'answer': answer_score,
         'format': format_score,
         'tool': 0,
-        "reason": f"state_score {state_score}, func_score {func_score}, format_reward {format_reward}, answer_score {answer_score}"
-    }
+        "reason": "test"}

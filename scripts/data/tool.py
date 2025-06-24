@@ -180,7 +180,7 @@ def combine_datasets():
     bfcl_train_dataset, bfcl_test_dataset = preprocess_bfcl_dataset()
     
     # Combine the two datasets
-    min_len_train = max(min(len(python_train_dataset), len(bfcl_train_dataset)), 6000)  # Ensure train set has at least 6000 samples
+    min_len_train = max(min(len(python_train_dataset), len(bfcl_train_dataset)), 200)  # Ensure train set has at least 200 samples
     min_len_test = max(min(len(python_test_dataset), len(bfcl_test_dataset)), 50)  # Ensure test set has at least 50 samples
     
     train_dataset = datasets.concatenate_datasets([python_train_dataset.select(range(min_len_train)), bfcl_train_dataset])

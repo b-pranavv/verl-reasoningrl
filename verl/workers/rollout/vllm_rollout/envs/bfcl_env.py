@@ -53,6 +53,39 @@ def _process_method_calls(function_call_string: str, instance_mapping: dict) -> 
     return processed_string
 
 
+def convert_json_to_function_calls(json_string):
+    """
+    Convert a JSON string with function calls to a string representation of function calls.
+    
+    Example:
+    Input: [{"name": "get_current_weather", "arguments": {"location": "San Francisco, CA", "format": "fahrenheit"}}]
+    Output: [get_current_weather(location='San Francisco, CA', format='fahrenheit')]
+    """
+    try:
+        # Parse the JSON string
+        data = json.loads(json_string)
+        
+        function_calls = []
+        
+        # Process each function call in the JSON
+        for item in data:
+            func_name = item["name"]
+            arguments = item["arguments"]
+            
+            # Format the arguments as key=value pairs
+            arg_strings = [f"{key}={repr(value)}" for key, value in arguments.items()]
+            arg_string = ", ".join(arg_strings)
+            
+            # Create the function call string
+            function_call = f"{func_name}({arg_string})"
+            function_calls.append(function_call)
+        
+        # Format the final result as a list
+        return f"[{', '.join(function_calls)}]"
+    except:
+        return "JSON parsing error"
+
+
 class BfclEnv():
     def __init__(self, **kwargs):
         self.CLASS_FILE_PATH_MAPPING = {
@@ -74,7 +107,11 @@ class BfclEnv():
         initial_config: str,
         involved_classes: list,
         long_context: bool = False,
+        bfcl_format: bool = False,
     ) -> tuple[list[str], dict]:
+        
+        if not bfcl_format:
+            func_call_list = [convert_json_to_function_calls(func_call) for func_call in func_call_list]
         
         random_id = ''.join(random.choices(string.ascii_lowercase, k=10))
         initial_config = json.loads(initial_config)
@@ -133,7 +170,9 @@ class BfclEnv():
                     raise Exception(f"Function call {func_call_copy} is not allowed.")
 
                 func_call_result = eval(func_call)
-
+                print("BFCL Env - function call: ", func_call, 
+                      " result: ", func_call_result)
+                breakpoint()
                 if type(func_call_result) == str:
                     pass
                 elif type(func_call_result) == dict:

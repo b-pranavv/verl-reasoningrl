@@ -79,7 +79,7 @@ class ToolRouter:
         if self.is_json(tool_call):
             res = self.parse_json(tool_call)
             if 'name' not in res or 'arguments' not in res:
-                print(f"Wrong tool call result: {res}")
+                # print(f"Wrong tool call result: {res}")
                 return {'type': 'error', 'message': f'Wrong tool call result: {res}, name or arguments missing'}
             tool_name = res['name']
             if isinstance(res['arguments'], dict):
@@ -95,10 +95,10 @@ class ToolRouter:
                         return {'type': 'error', 'message': f'Invalid tool: {tool_name}, category not found'}
                     return {'type': 'tool', 'tool_category': tool_category, 'tool_name': tool_name, 'arguments': arguments}
             else:
-                print(f"Wrong argument format: {res['arguments']}")
+                # print(f"Wrong argument format: {res['arguments']}")
                 return {'type': 'error', 'message': f"Wrong argument format: {res['arguments']}, expected a JSON object or string"}
         else:
-            print(f"Wrong tool call completion result: {tool_call}")
+            # print(f"Wrong tool call completion result: {tool_call}")
             return {'type': 'error', 'message': f'Wrong tool call format: {tool_call}, expected a JSON object or string'}
         
         
@@ -164,11 +164,11 @@ class ToolRouter:
                 "name": tool_call['tool_name'], 
                 "args": tool_call['arguments']
             }
-            tool_calls.append(json.dumps(tool_call_dict))
-        
-        # print("Tool Calls: ", tool_calls)
+            tool_calls.append(f'[{json.dumps(tool_call_dict)}]')
+
 
         response, _ = bfcl_execution.execute_list(tool_calls, class_list, env)
+        print("Tool Calls: ", tool_calls, " Tool Response: ", response)
 
         return response[-1]
     
