@@ -211,8 +211,8 @@ def hardFormatReward(text: str) -> tuple[bool, str]:
         output_end_pos = text.find('</tool_result>', output_pos)
         if output_end_pos == -1:
             return False, "<tool_result> </tool_result> not paired"
-
-        if not (think_pos < python_pos < python_end_pos < output_pos < output_end_pos < think_end_pos):
+        
+        if not (think_pos < think_end_pos < python_pos < python_end_pos < output_pos < output_end_pos):
             return False, "think/tool_call/tool_result tags are nested in the wrong order"
         current_pos = output_end_pos
 

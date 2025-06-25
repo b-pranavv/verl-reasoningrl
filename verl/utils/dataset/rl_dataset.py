@@ -148,8 +148,8 @@ class RLHFDataset(Dataset):
         
     def _pack_tool_input(self, datasetName, prompt_template, user_input, involved_classes=None):
         if datasetName == "python":
-            tool_details = '''[
-  {
+            tool_details = '''
+{
     "type": "function", 
     "function": {
       "name": "run_python",
@@ -169,8 +169,7 @@ class RLHFDataset(Dataset):
         "required": ["code"]
       }
     }
-  }
-]'''
+}'''
         
             prompt =  self.tokenizer.apply_chat_template([
                 {'role': 'system', 'content': prompt_template.replace('{tool_details}', tool_details)},

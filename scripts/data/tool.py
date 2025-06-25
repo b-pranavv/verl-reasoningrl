@@ -186,8 +186,8 @@ def combine_datasets():
     train_dataset = datasets.concatenate_datasets([python_train_dataset.select(range(min_len_train)), bfcl_train_dataset])
     test_dataset = datasets.concatenate_datasets([python_test_dataset.select(range(min_len_test)), bfcl_test_dataset.select(range(min_len_test))])
     
-    train_dataset = train_dataset.shuffle(seed=42)
-    test_dataset = test_dataset.shuffle(seed=42)
+    train_dataset = train_dataset.shuffle(seed=12)
+    test_dataset = test_dataset.shuffle(seed=12)
     
     return train_dataset, test_dataset
 

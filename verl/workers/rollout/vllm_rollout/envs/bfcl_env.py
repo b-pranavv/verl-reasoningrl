@@ -170,18 +170,23 @@ class BfclEnv():
                     raise Exception(f"Function call {func_call_copy} is not allowed.")
 
                 func_call_result = eval(func_call)
-                print("BFCL Env - function call: ", func_call, 
-                      " result: ", func_call_result)
-                breakpoint()
+                # print("BFCL Env - function call: ", func_call, 
+                    #   " result: ", func_call_result)
+                # breakpoint()  
                 if type(func_call_result) == str:
+                    # print("func call result is str")
                     pass
                 elif type(func_call_result) == dict:
                     # Some function returns a object instance, which is not serializable
+                    # print("func call result is dict")
                     try:
+                        # print("func call result is dict, try to json.dumps it")
                         func_call_result = json.dumps(func_call_result)
                     except:
+                        # print("func call result is dict, but json.dumps failed, try to str it")
                         func_call_result = str(func_call_result)
                 else:
+                    # print("func call result is not str or dict, try to str it")
                     func_call_result = str(func_call_result)
 
                 execution_results.append(func_call_result)

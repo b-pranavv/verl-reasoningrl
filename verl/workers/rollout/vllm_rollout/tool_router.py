@@ -11,7 +11,7 @@ class ToolRouter:
         self.output_str = output_str  ## output string is required for stateless tool calls
         
         ### TODO: Change the 6 based on the system prompt
-        self.tool_calls = self.extract_tool_calls(complete_solution_str)[6:]
+        self.tool_calls = self.extract_tool_calls(complete_solution_str)[4:]
         self.current_tool_call = self.extract_tool_calls(output_str)
         if len(self.current_tool_call) > 0:
             self.current_tool_call = self.current_tool_call[0]
@@ -162,13 +162,14 @@ class ToolRouter:
         for tool_call in tool_call_list:
             tool_call_dict = {
                 "name": tool_call['tool_name'], 
-                "args": tool_call['arguments']
+                "arguments": tool_call['arguments']
             }
             tool_calls.append(f'[{json.dumps(tool_call_dict)}]')
 
+        print("Tool Calls: ", tool_calls)
 
         response, _ = bfcl_execution.execute_list(tool_calls, class_list, env)
-        print("Tool Calls: ", tool_calls, " Tool Response: ", response)
+        print("Tool Response: ", response)
 
         return response[-1]
     

@@ -152,14 +152,14 @@ def validate_tool_calls(output_str):
 
 
 def extract_tool_calls(output_str):
-    if not validate_tool_calls(output_str):
-        return []
+    # if not self.validate_tool_calls(output_str):
+    #     return []
 
     try:
-        pattern = r'<tool_call>((?:(?!</tool_call>).)*)</tool_call>'
-        matches = re.finditer(pattern, output_str, re.DOTALL)
+        pattern = r"<tool_call>(.*?)</tool_call>"
+        matches = re.findall(pattern, output_str, re.DOTALL)
         
-        return [match.group(1).strip() for match in matches]
+        return matches
     except Exception as e:
         return []
 
@@ -272,8 +272,8 @@ def compute_score(solution_str, ground_truth, initial_config):
         solution_str: the solution text
         ground_truth: the ground truth
     """
-
-    tool_calls = extract_tool_calls(solution_str)[2:]
+    ### TODO : Change the strip based on the number of tool calls in the system prompt
+    tool_calls = extract_tool_calls(solution_str)[4:]
     # tool_calls_parsed = parse_list_of_tool_calls(tool_calls)
     tool_calls_fc = [convert_json_to_function_calls(call) for call in tool_calls]
     tool_calls_parsed = parse_list_of_tool_calls(tool_calls_fc)

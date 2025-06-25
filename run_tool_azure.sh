@@ -58,7 +58,7 @@ CMD="python -m verl.trainer.main_ppo \
     trainer.save_freq=5 \
     trainer.test_freq=5 \
     trainer.default_local_dir=$AMLT_OUTPUT_DIR/checkpoints \
-    trainer.total_epochs=1 \
+    trainer.total_epochs=$EPOCHS \
     trainer.log_val_generations=5"
 
 if [ "$FP8_ADAM" = true ]; then
