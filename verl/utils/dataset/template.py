@@ -40,10 +40,12 @@ re_tool_template_sys = '''\
 
 Structure Rules:
 1. All reasoning goes between <think> and </think> (thinking block). 
-2. Within the thinking block, whenever a tool would improve your answer, prefer invoking it using <tool_call>...</tool_call> instead of relying solely on memory.
+2. Within the thinking block, whenever a tool would improve your answer, invoke it using <tool_call>...</tool_call> instead of relying solely on memory.
 3. Issue one valid <tool_call>...</tool_call> at a time; further tool calls can be sequentially interleaved throughout the reasoning process.
 4. After each tool call, the result of the tool call will be provided in the <tool_result>...</tool_result> tags.
-4. Provide the final answer for the user inside the <answer> </answer> tags.
+5. Provide the final answer for the user inside the <answer> </answer> tags.
+6. Stop the generation only after reaching the final answer.
+
 
 # AVAILABLE TOOLS
 
@@ -73,10 +75,11 @@ re_tool_qwen_template_sys = '''\
 
 Structure Rules:
 1. All reasoning goes between <think> and </think> (thinking block). 
-2. Within the thinking block, whenever a tool would improve your answer, prefer invoking it using <tool_call>...</tool_call> instead of relying solely on memory.
+2. Within the thinking block, whenever a tool would improve your answer, invoke it using <tool_call>...</tool_call> instead of relying solely on memory.
 3. Issue one valid <tool_call>...</tool_call> at a time; further tool calls can be sequentially interleaved throughout the reasoning process.
 4. After each tool call, the result of the tool call will be provided in the <tool_result>...</tool_result> tags.
-4. Provide the final answer for the user inside the <answer> </answer> tags.
+5. Provide the final answer for the user inside the <answer> </answer> tags.
+6. Stop the generation only after reaching the final answer.
 
 # AVAILABLE TOOLS
 
