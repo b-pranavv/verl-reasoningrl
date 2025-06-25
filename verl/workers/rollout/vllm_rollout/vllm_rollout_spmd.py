@@ -553,6 +553,7 @@ class vLLMRolloutWithTool(vLLMRollout):
                     n=1, 
                     max_tokens=min(512, max(active_max_tokens)),
                     stop=['</tool_call>'],
+                    top_k=10000,
                     top_p=0.99,
                     detokenize=True,
                 ):  # 512 at most, and add <|im_start|> as stop for corner case

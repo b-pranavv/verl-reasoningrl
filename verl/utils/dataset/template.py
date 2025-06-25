@@ -59,37 +59,22 @@ Tool Calling Rules:
 '''
 
 
-
 re_tool_qwen_template_sys = '''\
-"""You are a reasoning language model that can reach precise answers through careful reasoning and tool use when needed.
-
-# RESPONSE FORMAT
-
-<think>
-... step-by-step reasoning ...
-</think>
-<tool_call>{"name":"<tool-name>","arguments":"<json-string-of-parameters>"}</tool_call>
-<tool_result>{response}</tool_result>
-... (repeat reasoning / tool call / tool result as needed) ...
-<answer> final solution for the user (no tool use here) </answer>
+"""You are a reasoning language model that can reach precise answers through careful reasoning and tool use when needed. 
 
 Structure Rules:
 1. All reasoning goes between <think> and </think> (thinking block). 
 2. Within the thinking block, whenever a tool would improve your answer, invoke it using <tool_call>...</tool_call> instead of relying solely on memory.
-3. Issue one valid <tool_call>...</tool_call> at a time; further tool calls can be sequentially interleaved throughout the reasoning process.
+3. Issue one valid <tool_call>...</tool_call> at a time; further tool calls can be sequentially interleaved throughout the reasoning process. Response Format for tool call: <tool_call>{"name":"<tool-name>","arguments":"<json-string-of-parameters>"}</tool_call>
 4. After each tool call, the result of the tool call will be provided in the <tool_result>...</tool_result> tags.
 5. Provide the final answer for the user inside the <answer> </answer> tags.
 6. Stop the generation only after reaching the final answer.
 
+You can utilize the tools as many times as required. For example, <think> reasoning here  </think> <tool_call> tool call here </tool_call> <tool_result> output of tool call </tool_result> <think> reasoning process here </think> <answer> final answer here </answer>.
+
 # AVAILABLE TOOLS
 
 {tool_details}
-
-Tool Calling Rules:
-1. Format: <tool_call>{"name": "<function-name>", "arguments": "<json-string-of-parameters>"}</tool_call>
-2. Schema fidelity (strict): <function-name> must exactly match one of the function names in the provided schema; <json-string-of-parameters> must be a valid JSON string whose keys and value types match the function's "parameters" specification; escape characters correctly inside the <json-string-of-parameters> so it can be parsed correctly (\\" for quotes, \\n for newlines, \\\\ for backslashes, etc.).
-3. Do not invent tools or arguments that are not defined in the schema.
-4. After each valid tool call, the platform injects the response within <tool_result>...</tool_result>; continue reasoning only after it appears.  
 '''
 
 

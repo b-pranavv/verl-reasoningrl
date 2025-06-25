@@ -160,12 +160,8 @@ class RLHFDataset(Dataset):
           "code": {
             "type": "string",
             "description": "Python code to execute. Use print() for output"
-          },
-          "new_session": {
-            "type": "bool",
-            "description": "Whether to start a new python session rather than reuse the persistent session for this task; Default is False."
           }
-        },        
+        },
         "required": ["code"]
       }
     }
