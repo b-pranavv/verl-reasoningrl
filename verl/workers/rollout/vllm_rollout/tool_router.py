@@ -130,7 +130,8 @@ class ToolRouter:
                 parsed_output_list = [self.parse_tools(tool_call) for tool_call in self.tool_calls]
                 tool_call_list = [tool_call for tool_call in parsed_output_list if tool_call['type'] == 'tool' and tool_call['tool_category'] == 'bfcl']
                 class_list = self.extract_classes(self.complete_solution_str)
-                
+                if len(tool_call_list) == 0:
+                    return {'success': False, 'message': 'No valid tool calls found'}
                 return self.execute_bfcl_tool(tool_call_list, class_list, env)
             else:
                 return {'success': False, 'message': f'Unknown tool category: {tool_category}'}
